@@ -49,7 +49,7 @@ Opine is a review aggregation web application allowing users to rate and review 
 ```ruby
 CATEGORY_MAP = {
   'Places'      => ['Restaurants', 'Bars', 'Parks', 'Museums'],
-  'Experiences' => ['Concerts', 'Festivals', 'Movies', 'Games'],
+  'Experiences' => ['Concerts', 'Festivals', 'Movies', 'Games', 'TV Shows'],
   'Things'      => ['Beer', 'Wine', 'Liquor']
 }
 
@@ -60,6 +60,7 @@ ATTRIBUTE_DEFINITIONS = {
   'Wine'        => [:varietal, :region, :vintage, :winemaker, :style],
   'Beer'        => [:style, :brewery, :abv],
   'Movies'      => [:director, :studio, :release_year, :genre],
+  'TV Shows'    => [:creator, :network, :season, :genre],
   'Games'       => [:platform, :developer, :publisher, :genre]
 }
 ```
@@ -104,6 +105,7 @@ ATTRIBUTE_DEFINITIONS = {
 | `producer`           | String      | **Generated** (stored) from `metadata->>'producer'`    |
 | `vintage`            | String      | **Generated** (stored) from `metadata->>'vintage'`     |
 | `release_year`       | String      | **Generated** (stored) from `metadata->>'release_year'`|
+| `season`             | String      | **Generated** (stored) from `metadata->>'season'`      |
 | `timestamps`         | —           |                                                        |
 
 **Indexes:**
@@ -113,6 +115,7 @@ ATTRIBUTE_DEFINITIONS = {
   - **Restaurants/Bars:** `(name, metadata->>'city')`
   - **Reviewable Items (Wine/Beer):** `(name, metadata->>'producer', metadata->>'vintage')`
   - **Movies:** `(name, metadata->>'release_year')`
+  - **TV Shows:** `(name, metadata->>'season')`
 
 #### `reviews`
 

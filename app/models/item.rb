@@ -3,7 +3,7 @@
 class Item < ApplicationRecord
   CATEGORY_MAP = {
     "Places"      => [ "Restaurants", "Bars", "Parks", "Museums" ],
-    "Experiences" => [ "Concerts", "Festivals", "Movies", "Games" ],
+    "Experiences" => [ "Concerts", "Festivals", "Movies", "Games", "TV Shows" ],
     "Things"      => [ "Beer", "Wine", "Liquor" ]
   }.freeze
 
@@ -14,12 +14,13 @@ class Item < ApplicationRecord
     "Wine"        => [ :varietal, :region, :vintage, :winemaker, :style ],
     "Beer"        => [ :style, :brewery, :abv ],
     "Movies"      => [ :director, :studio, :release_year, :genre ],
+    "TV Shows"    => [ :creator, :network, :season, :genre ],
     "Games"       => [ :platform, :developer, :publisher, :genre ]
   }.freeze
 
   include PgSearch::Model
   pg_search_scope :search_by_name,
-                  against: [ :name, :city, :producer, :vintage, :release_year ],
+                  against: [ :name, :city, :producer, :vintage, :release_year, :season ],
                   using: {
                     tsearch: { prefix: true, dictionary: "english" }
                   }
