@@ -8,14 +8,16 @@
           <span class="bg-gray-100 px-2 py-1 rounded ml-1"><%= @item.subcategory %></span>
         </div>
       </div>
-      <% if @item.average_score.present? %>
-        <div class="text-center">
+      <div id="item_score" class="text-center">
+        <% if @item.average_score.present? %>
           <div class="text-4xl font-bold text-blue-600">
             <%= number_with_precision(@item.average_score, precision: 1) %>
           </div>
           <div class="text-xs text-gray-500"><%= pluralize(@item.reviews_count, "review") %></div>
-        </div>
-      <% end %>
+        <% else %>
+          <div class="text-sm text-gray-400">No reviews yet</div>
+        <% end %>
+      </div>
     </div>
 
     <% if @item.ai_summary.present? %>
@@ -55,5 +57,34 @@
       Added by <%= @item.created_by_user&.display_name || @item.created_by_user&.username || "Unknown" %>
       on <%= @item.created_at.strftime("%B %d, %Y") %>
     </div>
+  </div>
+
+  <!-- Reviews Section -->
+  <div class="mt-8">
+    <h2 class="text-xl font-bold text-gray-900 mb-4">Reviews</h2>
+
+    <% if user_signed_in? %>
+      <% existing_review = @item.reviews.find_by(user: current_user) %>
+      <% if existing_review.nil? %>
+        <%= render "reviews/form", item: @item, review: @item.reviews.build %>
+      <% else %>
+        <div class="bg-gray-50 rounded-lg p-4 mb-4 text-sm text-gray-600">
+          You've already reviewed this item.
+          <%= link_to "Edit your review", "##{dom_id(existing_review)}", class: "text-blue-600 hover:underline" %>
+        </div>
+      <% end %>
+    <% else %>
+      <div class="bg-gray-50 rounded-lg p-4 mb-4 text-center">
+        <%= link_to "Sign in", new_user_session_path, class: "text-blue-600 hover:underline" %> to leave a review.
+      </div>
+    <% end %>
+
+    <div id="reviews" class="mt-6">
+      <%= render @item.reviews.includes(:user).recent %>
+    </div>
+
+    <% if @item.reviews.empty? %>
+      <p class="text-gray-500 text-center py-8">No reviews yet. Be the first!</p>
+    <% end %>
   </div>
 </div>

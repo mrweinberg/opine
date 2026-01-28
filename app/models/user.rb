@@ -8,6 +8,7 @@ class User < ApplicationRecord
   enum :role, { user: 0, admin: 1, superadmin: 2 }, default: :user
 
   has_many :items, foreign_key: :created_by_user_id, dependent: :nullify, inverse_of: :created_by_user
+  has_many :reviews, dependent: :destroy
   has_one_attached :avatar
 
   validates :username, presence: true, uniqueness: true,

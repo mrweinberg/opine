@@ -18,6 +18,7 @@ class Item < ApplicationRecord
   }.freeze
 
   belongs_to :created_by_user, class_name: "User", optional: true, inverse_of: :items
+  has_many :reviews, dependent: :destroy
 
   validates :name, presence: true, length: { maximum: 255 }
   validates :category, presence: true, inclusion: { in: CATEGORY_MAP.keys }
@@ -29,6 +30,11 @@ class Item < ApplicationRecord
 
   def expected_attributes
     ATTRIBUTE_DEFINITIONS[subcategory] || []
+  end
+
+  def recalculate_score!
+    avg = reviews.average(:score)
+    update_columns(average_score: avg, reviews_count: reviews.count)
   end
 
   private

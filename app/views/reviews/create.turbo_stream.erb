@@ -1,0 +1,18 @@
+<%= turbo_stream.prepend "reviews" do %>
+  <%= render @review %>
+<% end %>
+
+<%= turbo_stream.replace "new_review_form" do %>
+  <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
+    ✓ Review posted!
+  </div>
+<% end %>
+
+<%= turbo_stream.replace "item_score" do %>
+  <div id="item_score" class="text-center">
+    <div class="text-4xl font-bold text-blue-600">
+      <%= number_with_precision(@item.reload.average_score, precision: 1) %>
+    </div>
+    <div class="text-xs text-gray-500"><%= pluralize(@item.reviews_count, "review") %></div>
+  </div>
+<% end %>

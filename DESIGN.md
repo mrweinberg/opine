@@ -453,11 +453,11 @@ pg_search_scope :search_by_name,
 - [x] Basic CRUD for Items
 - [x] Pundit authorization policies
 
-### Phase 2: Core Review Loop
-- [ ] Review model with score validation
-- [ ] Hotwire forms for reviews
-- [ ] Image uploading (ActiveStorage)
-- [ ] Score aggregation (denormalized average)
+### Phase 2: Core Review Loop ✅
+- [x] Review model with score validation
+- [x] Hotwire forms for reviews
+- [x] Image uploading (ActiveStorage)
+- [x] Score aggregation (denormalized average)
 
 ### Phase 3: AI Integration
 - [ ] Integrate `google-generative-ai` gem

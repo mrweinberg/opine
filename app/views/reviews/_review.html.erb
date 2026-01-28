@@ -1,0 +1,47 @@
+<%= turbo_frame_tag dom_id(review) do %>
+  <div class="bg-white rounded-lg shadow p-4 mb-4" id="<%= dom_id(review) %>">
+    <div class="flex justify-between items-start">
+      <div class="flex items-center gap-3">
+        <div class="text-2xl font-bold text-blue-600 bg-blue-50 w-12 h-12 rounded-full flex items-center justify-center">
+          <%= review.score %>
+        </div>
+        <div>
+          <div class="font-semibold text-gray-900">
+            <%= review.user.display_name || review.user.username %>
+          </div>
+          <div class="text-xs text-gray-500">
+            <%= time_ago_in_words(review.created_at) %> ago
+          </div>
+        </div>
+      </div>
+
+      <% if user_signed_in? %>
+        <div class="flex gap-2">
+          <% if policy(review).update? %>
+            <%= link_to "Edit", edit_item_review_path(review.item, review),
+                class: "text-sm text-gray-500 hover:text-blue-600",
+                data: { turbo_frame: dom_id(review) } %>
+          <% end %>
+          <% if policy(review).destroy? %>
+            <%= button_to "Delete", item_review_path(review.item, review),
+                method: :delete,
+                data: { turbo_confirm: "Delete this review?" },
+                class: "text-sm text-gray-500 hover:text-red-600" %>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+
+    <% if review.body.present? %>
+      <p class="text-gray-700 mt-3"><%= review.body %></p>
+    <% end %>
+
+    <% if review.images.attached? %>
+      <div class="flex gap-2 mt-3 overflow-x-auto">
+        <% review.images.each do |image| %>
+          <%= image_tag image, class: "w-20 h-20 object-cover rounded" %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+<% end %>

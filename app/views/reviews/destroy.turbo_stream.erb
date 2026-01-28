@@ -1,0 +1,18 @@
+<%= turbo_stream.remove @review %>
+
+<%= turbo_stream.replace "item_score" do %>
+  <div id="item_score" class="text-center">
+    <% if @item.reload.average_score.present? %>
+      <div class="text-4xl font-bold text-blue-600">
+        <%= number_with_precision(@item.average_score, precision: 1) %>
+      </div>
+      <div class="text-xs text-gray-500"><%= pluralize(@item.reviews_count, "review") %></div>
+    <% else %>
+      <div class="text-sm text-gray-400">No reviews yet</div>
+    <% end %>
+  </div>
+<% end %>
+
+<%= turbo_stream.replace "new_review_form" do %>
+  <%= render "reviews/form", item: @item, review: @item.reviews.build %>
+<% end %>
