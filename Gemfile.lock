@@ -483,6 +483,7 @@ DEPENDENCIES
   pundit (~> 2.4)
   rails (~> 8.1.2)
   rspec-rails (~> 7.0)
+  rubocop (~> 1.84)
   rubocop-rails-omakase
   shoulda-matchers (~> 6.0)
   solid_cable

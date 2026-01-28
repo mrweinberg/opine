@@ -19,7 +19,7 @@ class Item < ApplicationRecord
 
   include PgSearch::Model
   pg_search_scope :search_by_name,
-                  against: :name,
+                  against: [ :name, :city, :producer, :vintage, :release_year ],
                   using: {
                     tsearch: { prefix: true, dictionary: "english" }
                   }

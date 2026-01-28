@@ -100,6 +100,10 @@ ATTRIBUTE_DEFINITIONS = {
 | `average_score`      | Decimal     | Denormalized, updated on review create/update/destroy  |
 | `reviews_count`      | Integer     | Counter cache                                          |
 | `created_by_user_id` | FK          | → users                                                |
+| `city`               | String      | **Generated** (stored) from `metadata->>'city'`        |
+| `producer`           | String      | **Generated** (stored) from `metadata->>'producer'`    |
+| `vintage`            | String      | **Generated** (stored) from `metadata->>'vintage'`     |
+| `release_year`       | String      | **Generated** (stored) from `metadata->>'release_year'`|
 | `timestamps`         | —           |                                                        |
 
 **Indexes:**
@@ -442,10 +446,12 @@ pg_search_scope :search_by_name,
 - [ ] Implement `AiItemEnrichmentJob`
 - [ ] Turbo Stream updates for AI status
 
-### Phase 4: Review-First Flow (Pivot)
-- [ ] Implement `pg_search` for autocomplete
-- [ ] Create `ReviewFlowController` (wizard logic)
-- [ ] Build unified "Find or Create Item + Review" form
+### Phase 4: Review-First Flow (Pivot) ✅
+- [x] Implement `pg_search` for autocomplete
+- [x] Create `ReviewFlowController` (wizard logic)
+- [x] Build unified "Find or Create Item + Review" form
+- [x] Strict Uniqueness Constraints (Partial Indexes)
+- [x] Generated Columns for Search
 
 ### Phase 5: Polish & Deploy
 - [ ] System tests for critical flows

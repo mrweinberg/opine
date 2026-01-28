@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_28_031802) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_28_141231) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -48,19 +48,28 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_28_031802) do
     t.text "ai_summary"
     t.decimal "average_score", precision: 3, scale: 2
     t.string "category", null: false
+    t.virtual "city", type: :string, as: "(metadata ->> 'city'::text)", stored: true
     t.datetime "created_at", null: false
     t.uuid "created_by_user_id"
     t.jsonb "metadata", default: {}
     t.boolean "metadata_edited_by_user", default: false
     t.string "name", null: false
+    t.virtual "producer", type: :string, as: "(metadata ->> 'producer'::text)", stored: true
+    t.virtual "release_year", type: :string, as: "(metadata ->> 'release_year'::text)", stored: true
     t.integer "reviews_count", default: 0
     t.string "subcategory", null: false
     t.datetime "updated_at", null: false
+    t.virtual "vintage", type: :string, as: "(metadata ->> 'vintage'::text)", stored: true
     t.index "name, ((metadata ->> 'city'::text))", name: "index_items_unique_places", unique: true, where: "((subcategory)::text = ANY ((ARRAY['Restaurants'::character varying, 'Bars'::character varying, 'Parks'::character varying, 'Museums'::character varying])::text[]))"
-    t.index "name, ((metadata ->> 'producer'::text)), ((metadata ->> 'vintage'::text))", name: "index_items_unique_drinks", unique: true, where: "((subcategory)::text = ANY ((ARRAY['Wine'::character varying, 'Beer'::character varying, 'Liquor'::character varying])::text[]))"
     t.index "name, ((metadata ->> 'release_year'::text))", name: "index_items_unique_movies", unique: true, where: "((subcategory)::text = 'Movies'::text)"
     t.index ["category", "subcategory"], name: "index_items_on_category_and_subcategory"
+    t.index ["city"], name: "index_items_on_city"
     t.index ["created_by_user_id"], name: "index_items_on_created_by_user_id"
+    t.index ["name", "producer", "vintage"], name: "index_items_unique_wine", unique: true, where: "((subcategory)::text = 'Wine'::text)"
+    t.index ["name", "producer"], name: "index_items_unique_beer_liquor", unique: true, where: "((subcategory)::text = ANY ((ARRAY['Beer'::character varying, 'Liquor'::character varying])::text[]))"
+    t.index ["producer"], name: "index_items_on_producer"
+    t.index ["release_year"], name: "index_items_on_release_year"
+    t.index ["vintage"], name: "index_items_on_vintage"
   end
 
   create_table "reviews", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
