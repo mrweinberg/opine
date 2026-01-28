@@ -39,7 +39,7 @@ module Opine
     # Don't generate system test files.
     config.generators.system_tests = nil
 
-    # Use UUID primary keys for all models
+    # Use UUID primary keys for all models (v7 for time-ordered indexing)
     config.generators do |g|
       g.orm :active_record, primary_key_type: :uuid
     end
