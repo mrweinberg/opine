@@ -5,10 +5,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Agent Instructions
 
 After writing code, make sure to run tests and linting to ensure the code is correct and follows the project's coding standards.
-
+Ensure all code is covered by tests. If you've added new functionality, add tests for it.
 If you've completed a task in DESIGN.md, update the file to mark it as done.
 If you've made a structural change to the codebase or schema, update DESIGN.md to reflect the changes.
 If this file, AGENTS.md, needs to be updated, update it to reflect the changes.
+
+## Tech Stack Constraints
+
+- **Styling**: Tailwind CSS only. Avoid custom CSS or other frameworks (Bootstrap, Bulma).
+- **Testing**: RSpec only. Do not use Minitest.
+- **Frontend**: Hotwire (Turbo + Stimulus). Do not introduce React, Vue, or Alpine.js without explicit permission.
+- **Database**: PostgreSQL with UUIDv7.
+- **Icons**: Lucide or Heroicons (SVG).
 
 ## Build & Development Commands
 
