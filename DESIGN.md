@@ -40,10 +40,9 @@ Opine is a review aggregation web application allowing users to rate and review 
 
 ### 3.1 Core Concepts
 
-- **User:** An authenticated account that can create items, reviews, and lists.
+- **User:** An authenticated account that can create items, reviews.
 - **Item:** The entity being reviewed (e.g., "Pappy Van Winkle 15yr").
 - **Review:** A user's opinion on an item (score + optional text + optional images).
-- **List:** A curated collection of items created by a user.
 
 ### 3.2 Constants
 
@@ -55,8 +54,8 @@ CATEGORY_MAP = {
 }
 
 ATTRIBUTE_DEFINITIONS = {
-  'Restaurants' => [:cuisine, :price_range, :neighborhood, :price_range],
-  'Bars'        => [:vibe, :specialty, :neighborhood, :price_range],
+  'Restaurants' => [:cuisine, :price_range, :city, :neighborhood],
+  'Bars'        => [:vibe, :specialty, :city, :neighborhood, :price_range],
   'Liquor'      => [:abv, :producer, :age_statement, :type],
   'Wine'        => [:varietal, :region, :vintage, :winemaker, :style],
   'Beer'        => [:style, :brewery, :abv],
@@ -103,7 +102,13 @@ ATTRIBUTE_DEFINITIONS = {
 | `created_by_user_id` | FK          | → users                                                |
 | `timestamps`         | —           |                                                        |
 
-**Indexes:** `(category, subcategory)`, `(name)` GIN for full-text search
+**Indexes:**
+- `(category, subcategory)`
+- `(name)` GIN for full-text search
+- **Uniqueness Constraints (Partial Indexes):**
+  - **Restaurants/Bars:** `(name, metadata->>'city')`
+  - **Reviewable Items (Wine/Beer):** `(name, metadata->>'producer', metadata->>'vintage')`
+  - **Movies:** `(name, metadata->>'release_year')`
 
 #### `reviews`
 
@@ -120,29 +125,6 @@ ATTRIBUTE_DEFINITIONS = {
 
 **Images:** Up to 5 images via ActiveStorage `has_many_attached :images`
 
-#### `lists`
-
-| Column        | Type    | Notes                              |
-| ------------- | ------- | ---------------------------------- |
-| `id`          | UUID    | Primary key                        |
-| `user_id`     | FK      | → users (owner)                    |
-| `name`        | String  | Required, max 100 chars            |
-| `description` | Text    | Optional, max 500 chars            |
-| `visibility`  | Enum    | `public`, `private` (default: public) |
-| `timestamps`  | —       |                                    |
-
-#### `list_items`
-
-| Column     | Type    | Notes                              |
-| ---------- | ------- | ---------------------------------- |
-| `id`       | UUID    | Primary key                        |
-| `list_id`  | FK      | → lists                            |
-| `item_id`  | FK      | → items                            |
-| `position` | Integer | For ordering (acts_as_list)        |
-| `note`     | Text    | Optional user note, max 280 chars  |
-| `timestamps` | —     |                                    |
-
-**Constraints:** Unique index on `(list_id, item_id)`
 
 ### 3.4 Entity Relationship Diagram
 
@@ -150,10 +132,7 @@ ATTRIBUTE_DEFINITIONS = {
 erDiagram
     users ||--o{ reviews : writes
     users ||--o{ items : creates
-    users ||--o{ lists : owns
     items ||--o{ reviews : has
-    lists ||--o{ list_items : contains
-    items ||--o{ list_items : "included in"
 ```
 
 ---
@@ -244,10 +223,6 @@ When a user signs in via Google for the first time:
 |            | Read      | ✅                    | ✅                 | ✅                 |
 |            | Update    | Author only           | ✅ Any             | ✅ Any             |
 |            | Delete    | Author only           | ✅ Any             | ✅ Any             |
-| **List**   | Create    | ✅                    | ✅                 | ✅                 |
-|            | Read      | Public or owner       | ✅ Any             | ✅ Any             |
-|            | Update    | Owner only            | Owner only         | ✅ Any             |
-|            | Delete    | Owner only            | Owner only         | ✅ Any             |
 | **User**   | Create    | Public signup         | ❌                 | ✅ (create admins) |
 |            | Read      | ✅                    | ✅                 | ✅                 |
 |            | Update    | Self only             | Self only          | ✅ Any             |
@@ -259,7 +234,6 @@ When a user signs in via Google for the first time:
 - **Merge Items:** Combine duplicate items, reassigning all reviews to the surviving item
 - **Edit Any Content:** Fix typos, remove inappropriate content
 - **Delete Reviews:** Remove spam or policy-violating reviews
-- **View Private Lists:** For moderation purposes only
 
 ### 5.4 Superadmin Capabilities
 
@@ -324,13 +298,21 @@ User: "Extract metadata for the #{category} named '#{item_name}'.
 - Triggered on review create/update/destroy
 - Recalculates `items.average_score` and `items.reviews_count`
 
-### 5.4 Item Creation Flow
+### 5.4 Review-First Item Creation Flow
 
-1. User enters "Inception" (Category: Movies)
-2. Item created with Name/Category only
-3. `AiItemEnrichmentJob` enqueued
-4. User sees "AI Gathering data..." badge
-5. Job completes: metadata + sentiment appear via Turbo Stream
+The primary way to add content is via the "Write a Review" flow.
+
+1. **Subcategory Selection**: User selects a subcategory (e.g., "Restaurants").
+2. **Search/Autocomplete**: User types the name.
+   - System searches for existing items in that subcategory.
+   - If found: User selects existing item.
+   - If not found: User proceeds with the typed name as a new item.
+3. **Review Form**:
+   - If **Existing Item**: User sees item summary and fills out Score/Body/Images.
+   - If **New Item**: User fills out Item Metadata (Address, Cuisine etc.) AND Score/Body/Images in one form.
+4. **Submission**:
+   - Creates `Review`.
+   - Creates `Item` (if new) atomically.
 
 ---
 
@@ -387,10 +369,6 @@ pg_search_scope :search_by_name,
 - `images`: Max 5, each ≤5MB
 - **Uniqueness:** One review per user per item
 
-### List
-- `name`: Required, max 100 chars
-- `description`: Max 500 chars
-- `visibility`: Required, enum
 
 ---
 
@@ -404,7 +382,7 @@ pg_search_scope :search_by_name,
 | `ai-status_controller.js`     | Shows sparkle animation while `ai_summary` is loading      |
 | `image-upload_controller.js`  | Preview images before upload, enforce 5-image limit        |
 | `score-input_controller.js`   | Interactive 1-6 score selector (no neutral option)         |
-| `list-reorder_controller.js`  | Drag-and-drop reordering for list items                    |
+| `review-flow_controller.js`   | Wizard logic: Subcategory -> Search (Autocomplete) -> Form |
 
 ---
 
@@ -420,7 +398,6 @@ pg_search_scope :search_by_name,
 **Critical Test Flows:**
 1. User signup → create item → write review → view on profile
 2. AI enrichment job completes and updates UI
-3. Create list → add items → reorder → share
 
 ---
 
@@ -465,10 +442,10 @@ pg_search_scope :search_by_name,
 - [ ] Implement `AiItemEnrichmentJob`
 - [ ] Turbo Stream updates for AI status
 
-### Phase 4: Lists & Search
-- [ ] List/ListItem models
-- [ ] pg_search implementation
-- [ ] Autocomplete UI
+### Phase 4: Review-First Flow (Pivot)
+- [ ] Implement `pg_search` for autocomplete
+- [ ] Create `ReviewFlowController` (wizard logic)
+- [ ] Build unified "Find or Create Item + Review" form
 
 ### Phase 5: Polish & Deploy
 - [ ] System tests for critical flows
