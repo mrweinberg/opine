@@ -1,4 +1,10 @@
-<%= form_with model: item, class: "space-y-6" do |f| %>
+<%= form_with model: item, 
+              class: "space-y-6",
+              data: { 
+                controller: "item-form",
+                item_form_category_map_value: Item::CATEGORY_MAP.to_json,
+                item_form_attribute_definitions_value: Item::ATTRIBUTE_DEFINITIONS.to_json
+              } do |f| %>
   <% if item.errors.any? %>
     <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
       <h3 class="font-semibold mb-2"><%= pluralize(item.errors.count, "error") %> prevented this item from being saved:</h3>
@@ -22,7 +28,7 @@
           options_for_select(Item::CATEGORY_MAP.keys, item.category),
           { include_blank: "Select category..." },
           { class: "w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500",
-            data: { controller: "category-select", action: "change->category-select#updateSubcategories" } } %>
+            data: { item_form_target: "category", action: "change->item-form#updateSubcategories" } } %>
     </div>
 
     <div>
@@ -31,8 +37,27 @@
           options_for_select(Item::CATEGORY_MAP.values.flatten, item.subcategory),
           { include_blank: "Select subcategory..." },
           { class: "w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500",
-            data: { category_select_target: "subcategory" } } %>
+            data: { item_form_target: "subcategory", action: "change->item-form#updateMetadataFields" } } %>
     </div>
+  </div>
+
+  <%# Dynamic metadata fields based on subcategory %>
+  <div data-item-form-target="metadataFields" class="hidden grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
+    <%# Fields will be dynamically inserted by Stimulus controller %>
+    <% if item.metadata.present? %>
+      <% item.metadata.each do |key, value| %>
+        <div>
+          <label for="item_metadata_<%= key %>" class="block text-sm font-medium text-gray-700 mb-1">
+            <%= key.to_s.humanize.titleize %>
+          </label>
+          <input type="text" 
+                 name="item[metadata][<%= key %>]" 
+                 id="item_metadata_<%= key %>"
+                 value="<%= value %>"
+                 class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+        </div>
+      <% end %>
+    <% end %>
   </div>
 
   <div class="flex gap-4 pt-4">
