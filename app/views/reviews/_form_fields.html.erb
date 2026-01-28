@@ -1,0 +1,33 @@
+<div class="space-y-6">
+  <!-- Score -->
+  <div>
+    <label class="block text-sm font-medium text-gray-700 mb-2">Score</label>
+    <div class="flex gap-2">
+      <% (1..6).each do |score| %>
+        <label class="cursor-pointer">
+          <%= f.radio_button :score, score, class: "peer sr-only" %>
+          <span class="peer-checked:bg-blue-600 peer-checked:text-white peer-checked:border-blue-600
+                       inline-flex items-center justify-center w-12 h-12 rounded-full border-2 border-gray-300
+                       text-gray-700 font-bold hover:border-blue-400 transition text-lg">
+            <%= score %>
+          </span>
+        </label>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div>
+    <%= f.label :body, "Review (optional)", class: "block text-sm font-medium text-gray-700 mb-1" %>
+    <%= f.text_area :body, rows: 4, 
+        placeholder: "What did you think? Share your experience...",
+        class: "w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+  </div>
+
+  <!-- Images -->
+  <div>
+    <%= f.label :images, "Photos (up to 5)", class: "block text-sm font-medium text-gray-700 mb-1" %>
+    <%= f.file_field :images, multiple: true, accept: "image/*",
+        class: "block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" %>
+  </div>
+</div>

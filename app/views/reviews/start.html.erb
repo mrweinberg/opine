@@ -1,0 +1,108 @@
+<div class="max-w-2xl mx-auto py-8 px-4" 
+     data-controller="review-flow"
+     data-review-flow-category-map-value="<%= Item::CATEGORY_MAP.to_json %>"
+     data-review-flow-attribute-definitions-value="<%= Item::ATTRIBUTE_DEFINITIONS.to_json %>">
+     
+  <h1 class="text-3xl font-bold text-gray-900 mb-8">Write a Review</h1>
+
+  <!-- Step 1: Subcategory Selection -->
+  <div data-review-flow-target="step1" class="transition-all duration-300">
+    <label class="block text-lg font-medium text-gray-700 mb-4">What are you reviewing?</label>
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+      <% Item::CATEGORY_MAP.each do |category, subcategories| %>
+        <div class="col-span-full text-xs font-bold text-gray-500 uppercase tracking-wide mt-2"><%= category %></div>
+        <% subcategories.each do |sub| %>
+          <button class="p-4 border rounded-lg hover:border-blue-500 hover:bg-blue-50 text-left transition"
+                  value="<%= sub %>"
+                  data-action="click->review-flow#selectSubcategory">
+            <span class="font-medium text-gray-900 block pointer-events-none"><%= sub %></span>
+            <span class="text-xs text-gray-500 block pointer-events-none">Rate & Review</span>
+          </button>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Step 2: Search / Autocomplete -->
+  <div data-review-flow-target="step2" class="hidden transition-all duration-300">
+    <div class="flex items-center gap-2 mb-4">
+      <button class="text-gray-500 hover:text-gray-900" 
+              data-action="click->review-flow#showStep" 
+              data-review-flow-step-param="1">← Back</button>
+      <label class="text-lg font-medium text-gray-700">Find the item</label>
+    </div>
+
+    <div class="relative">
+      <input type="text" 
+             data-review-flow-target="searchInput"
+             data-action="input->review-flow#search"
+             placeholder="Search by name..." 
+             class="w-full text-lg p-4 rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+      
+      <!-- Autocomplete Dropdown -->
+      <div data-review-flow-target="searchResults" 
+           class="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-xl z-50 hidden max-h-64 overflow-y-auto">
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 3: Form Container -->
+  <div data-review-flow-target="step3" class="hidden transition-all duration-300">
+    <div class="mb-6">
+      <button class="text-gray-500 hover:text-gray-900" 
+              data-action="click->review-flow#showStep" 
+              data-review-flow-step-param="2">← Back to Search</button>
+    </div>
+
+    <!-- Existing Item Form -->
+    <div data-review-flow-target="existingItemForm" class="hidden">
+      <h2 class="text-xl font-bold mb-4">Review this item</h2>
+      <!-- Action will be set by controller -->
+      <%= form_with model: @review, url: "", local: true, method: :post do |f| %>
+        <%= render "form_fields", f: f %>
+        <div class="mt-6">
+          <%= f.submit "Post Review", class: "w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 cursor-pointer" %>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- New Item Form -->
+    <div data-review-flow-target="newItemForm" class="hidden">
+      <h2 class="text-xl font-bold mb-4">Create & Review New Item</h2>
+      <%= form_with model: @new_item, url: items_path, local: true do |f| %>
+        <div data-review-flow-target="itemFields" class="bg-gray-50 p-4 rounded-lg mb-6 space-y-4">
+          <div>
+            <%= f.label :name, class: "block text-sm font-medium text-gray-700 mb-1" %>
+            <%= f.text_field :name, readonly: true, class: "w-full bg-gray-100 rounded-lg border-gray-300 text-gray-500" %>
+          </div>
+          
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <%= f.label :category, class: "block text-sm font-medium text-gray-700 mb-1" %>
+              <%= f.text_field :category, readonly: true, class: "w-full bg-gray-100 rounded-lg border-gray-300 text-gray-500" %>
+            </div>
+            <div>
+              <%= f.label :subcategory, class: "block text-sm font-medium text-gray-700 mb-1" %>
+              <%= f.text_field :subcategory, readonly: true, class: "w-full bg-gray-100 rounded-lg border-gray-300 text-gray-500" %>
+            </div>
+          </div>
+
+          <!-- Dynamic Metadata Container -->
+          <div data-review-flow-target="metadataContainer" class="grid grid-cols-2 gap-4">
+            <!-- Injected by Stimulus -->
+          </div>
+        </div>
+
+        <h3 class="text-lg font-medium mb-4">Your Review</h3>
+        <%= f.fields_for :reviews do |rf| %>
+          <%= render "form_fields", f: rf %>
+        <% end %>
+
+        <div class="mt-6">
+          <%= f.submit "Create Item & Post Review", class: "w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 cursor-pointer" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+</div>

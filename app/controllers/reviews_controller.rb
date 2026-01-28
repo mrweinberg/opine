@@ -2,8 +2,18 @@
 
 class ReviewsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_item
+  before_action :set_item, except: [ :start ]
   before_action :set_review, only: [ :edit, :update, :destroy ]
+
+  def start
+    @new_item = Item.new
+    @new_item.reviews.build
+
+    # We also need a bare review object for "Existing Item" form if we want to use form_with model: [item, review]
+    # But for the existing item form, we will likely fetch the item via ID.
+    # Actually, we can just use a placeholder for the View to use.
+    @review = Review.new
+  end
 
   def create
     @review = @item.reviews.build(review_params)

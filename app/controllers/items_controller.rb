@@ -20,6 +20,9 @@ class ItemsController < ApplicationController
   def create
     @item = current_user.items.build(item_params)
 
+    # Assign current user to any nested reviews
+    @item.reviews.each { |review| review.user = current_user }
+
     if @item.save
       redirect_to @item, notice: "Item was successfully created."
     else
@@ -54,6 +57,6 @@ class ItemsController < ApplicationController
   end
 
   def item_params
-    params.require(:item).permit(:name, :category, :subcategory, metadata: {})
+    params.require(:item).permit(:name, :category, :subcategory, metadata: {}, reviews_attributes: [ :score, :body, images: [] ])
   end
 end

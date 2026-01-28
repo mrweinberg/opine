@@ -5,6 +5,9 @@ Rails.application.routes.draw do
     resources :reviews, only: [ :create, :edit, :update, :destroy ]
   end
 
+  get "search/items", to: "searches#items"
+  get "write_review", to: "reviews#start", as: :new_review_wizard
+
   # Health check
   get "up" => "rails/health#show", as: :rails_health_check
 

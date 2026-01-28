@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_28_011834) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_28_031802) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -56,6 +56,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_28_011834) do
     t.integer "reviews_count", default: 0
     t.string "subcategory", null: false
     t.datetime "updated_at", null: false
+    t.index "name, ((metadata ->> 'city'::text))", name: "index_items_unique_places", unique: true, where: "((subcategory)::text = ANY ((ARRAY['Restaurants'::character varying, 'Bars'::character varying, 'Parks'::character varying, 'Museums'::character varying])::text[]))"
+    t.index "name, ((metadata ->> 'producer'::text)), ((metadata ->> 'vintage'::text))", name: "index_items_unique_drinks", unique: true, where: "((subcategory)::text = ANY ((ARRAY['Wine'::character varying, 'Beer'::character varying, 'Liquor'::character varying])::text[]))"
+    t.index "name, ((metadata ->> 'release_year'::text))", name: "index_items_unique_movies", unique: true, where: "((subcategory)::text = 'Movies'::text)"
     t.index ["category", "subcategory"], name: "index_items_on_category_and_subcategory"
     t.index ["created_by_user_id"], name: "index_items_on_created_by_user_id"
   end

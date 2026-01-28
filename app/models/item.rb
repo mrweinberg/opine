@@ -17,8 +17,17 @@ class Item < ApplicationRecord
     "Games"       => [ :platform, :developer, :publisher, :genre ]
   }.freeze
 
+  include PgSearch::Model
+  pg_search_scope :search_by_name,
+                  against: :name,
+                  using: {
+                    tsearch: { prefix: true, dictionary: "english" }
+                  }
+
   belongs_to :created_by_user, class_name: "User", optional: true, inverse_of: :items
   has_many :reviews, dependent: :destroy
+
+  accepts_nested_attributes_for :reviews
 
   validates :name, presence: true, length: { maximum: 255 }
   validates :category, presence: true, inclusion: { in: CATEGORY_MAP.keys }

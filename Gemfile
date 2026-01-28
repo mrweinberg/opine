@@ -76,3 +76,5 @@ group :development, :test do
   gem "faker", "~> 3.4"
   gem "shoulda-matchers", "~> 6.0"
 end
+
+gem "pg_search", "~> 2.3"
