@@ -1,0 +1,59 @@
+<div class="max-w-2xl mx-auto py-8 px-4">
+  <div class="bg-white rounded-lg shadow-lg p-8">
+    <div class="flex justify-between items-start mb-6">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-900"><%= @item.name %></h1>
+        <div class="text-sm text-gray-500 mt-2">
+          <span class="bg-gray-100 px-2 py-1 rounded"><%= @item.category %></span>
+          <span class="bg-gray-100 px-2 py-1 rounded ml-1"><%= @item.subcategory %></span>
+        </div>
+      </div>
+      <% if @item.average_score.present? %>
+        <div class="text-center">
+          <div class="text-4xl font-bold text-blue-600">
+            <%= number_with_precision(@item.average_score, precision: 1) %>
+          </div>
+          <div class="text-xs text-gray-500"><%= pluralize(@item.reviews_count, "review") %></div>
+        </div>
+      <% end %>
+    </div>
+
+    <% if @item.ai_summary.present? %>
+      <div class="bg-blue-50 rounded-lg p-4 mb-6">
+        <div class="text-xs text-blue-600 font-semibold mb-1">✨ AI Summary</div>
+        <p class="text-gray-700"><%= @item.ai_summary %></p>
+      </div>
+    <% end %>
+
+    <% if @item.metadata.present? && @item.metadata.any? %>
+      <div class="border-t pt-4 mb-6">
+        <h3 class="text-sm font-semibold text-gray-500 mb-3">Details</h3>
+        <dl class="grid grid-cols-2 gap-2 text-sm">
+          <% @item.metadata.each do |key, value| %>
+            <dt class="text-gray-500 capitalize"><%= key.to_s.humanize %></dt>
+            <dd class="text-gray-900"><%= value %></dd>
+          <% end %>
+        </dl>
+      </div>
+    <% end %>
+
+    <div class="flex gap-3 pt-4 border-t">
+      <%= link_to "← Back", items_path, class: "text-gray-600 hover:text-gray-900" %>
+
+      <% if user_signed_in? && policy(@item).update? %>
+        <%= link_to "Edit", edit_item_path(@item), class: "text-blue-600 hover:underline" %>
+      <% end %>
+
+      <% if user_signed_in? && policy(@item).destroy? %>
+        <%= button_to "Delete", @item, method: :delete,
+            data: { turbo_confirm: "Are you sure?" },
+            class: "text-red-600 hover:underline" %>
+      <% end %>
+    </div>
+
+    <div class="text-xs text-gray-400 mt-6">
+      Added by <%= @item.created_by_user&.display_name || @item.created_by_user&.username || "Unknown" %>
+      on <%= @item.created_at.strftime("%B %d, %Y") %>
+    </div>
+  </div>
+</div>

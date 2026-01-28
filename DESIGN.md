@@ -446,11 +446,12 @@ pg_search_scope :search_by_name,
 
 ## 13. Development Phases
 
-### Phase 1: Foundation
-- [ ] Rails 7.x new app with PostgreSQL
-- [ ] Devise authentication + Google OAuth (OmniAuth)
-- [ ] User model with username/bio/avatar
-- [ ] Basic CRUD for Items
+### Phase 1: Foundation ✅
+- [x] Rails 8.1 new app with PostgreSQL
+- [x] Devise authentication + Google OAuth (OmniAuth)
+- [x] User model with username/bio/avatar/role
+- [x] Basic CRUD for Items
+- [x] Pundit authorization policies
 
 ### Phase 2: Core Review Loop
 - [ ] Review model with score validation
@@ -470,7 +471,6 @@ pg_search_scope :search_by_name,
 - [ ] Autocomplete UI
 
 ### Phase 5: Polish & Deploy
-- [ ] Pundit authorization policies
 - [ ] System tests for critical flows
 - [ ] Render deployment
 - [ ] Turbo Native mobile wrappers
