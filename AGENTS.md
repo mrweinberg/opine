@@ -11,6 +11,9 @@ If you've made a structural change to the codebase or schema, update DESIGN.md t
 If this file, AGENTS.md, needs to be updated, update it to reflect the changes.
 If you have any questions, please ask me.
 
+> [!IMPORTANT]
+> **Always keep DESIGN.md up to date.** After making any design change — adding/removing/renaming constants, changing validation rules, modifying the review flow, updating Stimulus controllers, or altering schema — update the relevant sections of `DESIGN.md` before finishing the task. This includes changes to `CATEGORY_MAP`, `IDENTIFIER_FIELD`, `ATTRIBUTE_DEFINITIONS`, development phases, and Stimulus controller descriptions.
+
 ## Tech Stack Constraints
 
 - **Styling**: Tailwind CSS only. Avoid custom CSS or other frameworks (Bootstrap, Bulma).
@@ -70,12 +73,22 @@ bundle exec bundler-audit
 
 Categories are defined in `app/models/item.rb`:
 - **Places**: Restaurants, Bars, Parks, Museums
-- **Experiences**: Concerts, Festivals, Movies, Games
+- **Experiences**: Concerts, Festivals, Movies, Games, TV Shows
 - **Things**: Beer, Wine, Liquor
 
 These categories are not exhaustive and can be expanded in the future.
 
 Each subcategory has specific metadata attributes defined in `Item::ATTRIBUTE_DEFINITIONS`.
+**All defined attributes are required** — items cannot be saved without every attribute filled in.
+
+### Identifier System
+
+Each subcategory maps to one or more identifier fields via `Item::IDENTIFIER_FIELD`. Identifiers are used for:
+- **Display labels**: e.g., "Porter — Bell's" (Beer), "Pinot Noir — Kosta Browne 2020" (Wine)
+- **Uniqueness**: distinguishing items within a subcategory
+- **Form highlighting**: identifier fields get a ★ marker in forms
+
+**Compound identifiers** are supported by using an array (e.g., Wine uses `[:winemaker, :vintage]`). To make any subcategory compound, change its `IDENTIFIER_FIELD` value to an array.
 
 ### Authorization Rules
 

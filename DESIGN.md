@@ -54,9 +54,24 @@ CATEGORY_MAP = {
   'Things'      => ['Beer', 'Wine', 'Liquor']
 }
 
+# Each subcategory's identifier field(s) — used for display_label and uniqueness.
+# Values can be a single symbol or an array for compound identifiers.
+IDENTIFIER_FIELD = {
+  'Restaurants' => :city,
+  'Bars'        => :city,
+  'Parks'       => :city,
+  'Museums'     => :city,
+  'Beer'        => :brewery,
+  'Wine'        => [:winemaker, :vintage],   # compound identifier
+  'Liquor'      => :producer,
+  'Movies'      => :director,
+  'TV Shows'    => :season,
+  'Games'       => :developer
+}
+
 ATTRIBUTE_DEFINITIONS = {
-  'Restaurants' => [:cuisine, :price_range, :city, :neighborhood],
-  'Bars'        => [:vibe, :specialty, :city, :neighborhood, :price_range],
+  'Restaurants' => [:cuisine, :price_range, :neighborhood],
+  'Bars'        => [:vibe, :specialty, :neighborhood, :price_range],
   'Liquor'      => [:abv, :producer, :age_statement, :type],
   'Wine'        => [:varietal, :region, :vintage, :winemaker, :style],
   'Beer'        => [:style, :brewery, :abv],
@@ -65,6 +80,12 @@ ATTRIBUTE_DEFINITIONS = {
   'Games'       => [:platform, :developer, :publisher, :genre]
 }
 ```
+
+> [!NOTE]
+> **Compound Identifiers:** Wine uses `[:winemaker, :vintage]` so display labels read "Pinot Noir — Kosta Browne 2020". All other subcategories use a single identifier. To add compound identifiers for another subcategory, just change its `IDENTIFIER_FIELD` value to an array.
+
+> [!IMPORTANT]
+> **Required Attributes:** All attributes defined in `ATTRIBUTE_DEFINITIONS` for a subcategory are validated as required. Items cannot be saved without filling in every defined attribute.
 
 ### 3.3 Database Tables
 
@@ -306,21 +327,25 @@ User: "Extract metadata for the #{category} named '#{item_name}'.
 - Triggered on review create/update/destroy
 - Recalculates `items.average_score` and `items.reviews_count`
 
-### 5.4 Review-First Item Creation Flow
+### 5.4 Review-First Item Creation Flow (4-Step Wizard)
 
-The primary way to add content is via the "Write a Review" flow.
+The primary way to add content is via the "Add Review" button, which launches a progressive 4-step wizard.
 
-1. **Subcategory Selection**: User selects a subcategory (e.g., "Restaurants").
-2. **Search/Autocomplete**: User types the name.
-   - System searches for existing items in that subcategory.
-   - If found: User selects existing item.
-   - If not found: User proceeds with the typed name as a new item.
-3. **Review Form**:
-   - If **Existing Item**: User sees item summary and fills out Score/Body/Images.
-   - If **New Item**: User fills out Item Metadata (Address, Cuisine etc.) AND Score/Body/Images in one form.
-4. **Submission**:
-   - Creates `Review`.
-   - Creates `Item` (if new) atomically.
+1. **Category Selection**: User picks a broad category (Places, Experiences, Things) via large buttons.
+2. **Subcategory Selection**: Dynamic subcategory buttons appear based on the chosen category.
+3. **Name Search & Autocomplete**: User types the item name. Autocomplete shows matching items with `display_label` (e.g., "Porter — Bell's"). User can select an existing item or create a new one.
+4. **Review Form**:
+   - If **Existing Item**: Item header displayed, user fills out Score/Body/Images.
+   - If **New Item**: User fills out Item Metadata fields (all required) AND Score/Body/Images in one form.
+5. **Submission**: Creates `Review` (and `Item` if new) atomically.
+
+### 5.5 Review Editing (Turbo Frames)
+
+Reviews are edited inline on the item show page using Turbo Frames:
+- Each review is wrapped in `turbo_frame_tag dom_id(review)`
+- Clicking "Edit" fetches the edit form into the same frame
+- Successful update replaces the frame with the updated review partial
+- The item's average score is also updated via a separate Turbo Stream
 
 ---
 
@@ -329,18 +354,17 @@ The primary way to add content is via the "Write a Review" flow.
 **Gem:** `pg_search`
 
 **Searchable Models:**
-- `Item` — searchable by `name`, `category`, `subcategory`, and JSONB metadata values
-- `User` — searchable by `username`, `display_name`
+- `Item` — searchable by `name` and generated columns (`city`, `producer`, `vintage`, `release_year`, `season`)
 
 **Configuration:**
 ```ruby
 include PgSearch::Model
 pg_search_scope :search_by_name,
-  against: :name,
+  against: [:name, :city, :producer, :vintage, :release_year, :season],
   using: { tsearch: { prefix: true, dictionary: "english" } }
 ```
 
-**Autocomplete:** Stimulus controller debounces input (300ms) and fetches `/items/search.json?q=...`
+**Autocomplete:** Stimulus controller debounces input (300ms) and fetches `/search/items.json?q=...&subcategory=...`. Results include `display_label` with identifier values.
 
 ---
 
@@ -370,6 +394,7 @@ pg_search_scope :search_by_name,
 - `name`: Required, max 255 chars
 - `category`: Required, must be in `CATEGORY_MAP.keys`
 - `subcategory`: Required, must be in `CATEGORY_MAP[category]`
+- **All defined attributes are required** — every attribute in `ATTRIBUTE_DEFINITIONS[subcategory]` must be present in metadata
 
 ### Review
 - `score`: Required, integer 1-6
@@ -386,11 +411,8 @@ pg_search_scope :search_by_name,
 
 | Controller                    | Purpose                                                    |
 | ----------------------------- | ---------------------------------------------------------- |
-| `item-search_controller.js`   | Debounced autocomplete for item lookup                     |
-| `ai-status_controller.js`     | Shows sparkle animation while `ai_summary` is loading      |
-| `image-upload_controller.js`  | Preview images before upload, enforce 5-image limit        |
-| `score-input_controller.js`   | Interactive 1-6 score selector (no neutral option)         |
-| `review-flow_controller.js`   | Wizard logic: Subcategory -> Search (Autocomplete) -> Form |
+| `item-form_controller.js`     | Dynamic category → subcategory filtering, metadata field rendering with identifier highlighting, and pre-filling existing values on edit |
+| `review-flow_controller.js`   | 4-step wizard: Category → Subcategory → Name Search (Autocomplete) → Review Form. Handles compound identifiers. |
 
 ---
 
@@ -457,7 +479,15 @@ pg_search_scope :search_by_name,
 - [x] Strict Uniqueness Constraints (Partial Indexes)
 - [x] Generated Columns for Search
 
-### Phase 5: Polish & Deploy
+### Phase 5: Item Identity & Validation ✅
+- [x] IDENTIFIER_FIELD mapping for display labels
+- [x] Compound identifiers (Wine: winemaker + vintage)
+- [x] Required attribute validation for all subcategory-defined metadata
+- [x] 4-step "Add Review" wizard (Category → Subcategory → Search → Form)
+- [x] Inline review editing via Turbo Frames
+- [x] Edit item form pre-fills existing metadata
+
+### Phase 6: Polish & Deploy
 - [ ] System tests for critical flows
 - [ ] Render deployment
 - [ ] Turbo Native mobile wrappers
