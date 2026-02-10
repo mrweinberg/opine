@@ -13,7 +13,7 @@ class Item < ApplicationRecord
     "Parks"       => :city,
     "Museums"     => :city,
     "Beer"        => :brewery,
-    "Wine"        => :winemaker,
+    "Wine"        => [ :winemaker, :vintage ],
     "Liquor"      => :producer,
     "Movies"      => :director,
     "TV Shows"    => :season,
@@ -56,16 +56,23 @@ class Item < ApplicationRecord
     ATTRIBUTE_DEFINITIONS[subcategory] || []
   end
 
+  # Always returns an array of identifier symbols (may be empty)
+  def identifier_fields
+    Array(IDENTIFIER_FIELD[subcategory])
+  end
+
+  # For backward compat — returns first identifier field or nil
   def identifier_field
-    IDENTIFIER_FIELD[subcategory]
+    identifier_fields.first
   end
 
+  # Returns a single joined string of all identifier values, or nil
   def identifier_value
-    field = identifier_field
-    field ? metadata&.dig(field.to_s) : nil
+    vals = identifier_fields.filter_map { |f| metadata&.dig(f.to_s).presence }
+    vals.any? ? vals.join(" ") : nil
   end
 
-  # "Porter — Bell's" or just "Porter" if no identifier
+  # "Pinot Noir — Kosta Browne 2020" or just "Porter — Bell's" or just "Porter"
   def display_label
     id_val = identifier_value
     id_val.present? ? "#{name} — #{id_val}" : name

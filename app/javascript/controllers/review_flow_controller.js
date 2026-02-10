@@ -160,10 +160,10 @@ export default class extends Controller {
         container.innerHTML = ""
 
         const attributes = this.attributeDefinitionsValue[subcategory] || []
-        const identifierAttr = this.identifierFieldsValue[subcategory]
+        const identifierAttrs = [].concat(this.identifierFieldsValue[subcategory] || [])
 
         attributes.forEach(attr => {
-            const isIdentifier = attr === identifierAttr
+            const isIdentifier = identifierAttrs.includes(attr)
             const starHtml = isIdentifier ? ' <span class="text-red-500">★</span>' : ''
             const wrapper = document.createElement("div")
             wrapper.innerHTML = `

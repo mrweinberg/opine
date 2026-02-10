@@ -51,11 +51,13 @@ export default class extends Controller {
         container.classList.remove("hidden")
         const attributes = this.attributeDefinitionsValue[subcategory]
 
+        const identifierAttrs = [].concat(this.identifierFieldsValue[subcategory] || [])
+
         attributes.forEach(attr => {
             const fieldName = this.humanize(attr)
             const inputName = `item[metadata][${attr}]`
             const inputId = `item_metadata_${attr}`
-            const isIdentifier = this.identifierFieldsValue[subcategory] === attr
+            const isIdentifier = identifierAttrs.includes(attr)
             const starHtml = isIdentifier ? ' <span class="text-red-500">★</span>' : ''
             const existingValue = this.existingMetadataValue[attr] || ''
 

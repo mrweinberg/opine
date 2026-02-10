@@ -18,7 +18,7 @@ class SearchesController < ApplicationController
         label: item.display_label,
         name: item.name,
         identifier: item.identifier_value,
-        identifier_field: item.identifier_field&.to_s&.humanize&.titleize,
+        identifier_field: item.identifier_fields.map { |f| f.to_s.humanize.titleize }.join(" / "),
         category: item.category,
         subcategory: item.subcategory
       }
