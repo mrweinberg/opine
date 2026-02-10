@@ -16,17 +16,18 @@
       </div>
 
       <% if user_signed_in? %>
-        <div class="flex gap-2">
+        <div class="flex items-center gap-3">
           <% if policy(review).update? %>
             <%= link_to "Edit", edit_item_review_path(review.item, review),
-                class: "text-sm text-walnut hover:text-clay transition",
+                class: "text-base text-walnut/70 hover:text-clay transition",
                 data: { turbo_frame: dom_id(review) } %>
           <% end %>
           <% if policy(review).destroy? %>
             <%= button_to "Delete", item_review_path(review.item, review),
                 method: :delete,
                 data: { turbo_confirm: "Delete this review?" },
-                class: "text-sm text-walnut hover:text-score-1 transition" %>
+                class: "text-base text-walnut/70 hover:text-score-1 transition",
+                form_class: "inline" %>
           <% end %>
         </div>
       <% end %>
