@@ -6,34 +6,7 @@
       </div>
     <% end %>
 
-    <div class="mb-4">
-      <label class="block text-sm font-medium text-walnut mb-2">Your Score</label>
-      <div class="flex gap-2">
-        <% (1..6).each do |score| %>
-          <label class="cursor-pointer">
-            <%= f.radio_button :score, score, class: "peer sr-only", id: "score_#{score}" %>
-            <span class="peer-checked:bg-score-<%= score %> peer-checked:text-white peer-checked:border-score-<%= score %>
-                         inline-flex items-center justify-center w-10 h-10 rounded-full border-2 border-sand
-                         text-walnut font-semibold hover:border-clay/60 transition">
-              <%= score %>
-            </span>
-          </label>
-        <% end %>
-      </div>
-    </div>
-
-    <div class="mb-4">
-      <%= f.label :body, "Review (optional)", class: "block text-sm font-medium text-walnut mb-1" %>
-      <%= f.text_area :body, rows: 3,
-          placeholder: "Share your thoughts...",
-          class: "w-full rounded-lg border-sand bg-warm-white shadow-sm focus:border-clay focus:ring-clay/40" %>
-    </div>
-
-    <div class="mb-4">
-      <%= f.label :images, "Photos (up to 5)", class: "block text-sm font-medium text-walnut mb-1" %>
-      <%= f.file_field :images, multiple: true, accept: "image/*",
-          class: "block w-full text-sm text-walnut file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-warm-white file:text-clay hover:file:bg-sand file:transition" %>
-    </div>
+    <%= render "reviews/form_fields", f: f %>
 
     <div class="flex justify-end">
       <%= f.submit review.persisted? ? "Update Review" : "Post Review",

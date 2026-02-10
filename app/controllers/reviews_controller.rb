@@ -40,7 +40,22 @@ class ReviewsController < ApplicationController
     authorize @review
 
     respond_to do |format|
-      if @review.update(review_params)
+      # 1. Update text/score (excluding images to prevent replacement)
+      if @review.update(review_params.except(:images))
+
+        # 2. Append new images if any
+        if review_params[:images].present?
+          @review.images.attach(review_params[:images])
+        end
+
+        # 3. Remove marked images
+        if params[:remove_image_ids].present?
+          @review.images.where(id: params[:remove_image_ids]).each(&:purge)
+        end
+
+        @review.reload
+
+
         format.turbo_stream
         format.html { redirect_to @item, notice: "Review updated!" }
       else

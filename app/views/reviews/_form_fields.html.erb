@@ -27,7 +27,30 @@
   <!-- Images -->
   <div>
     <%= f.label :images, "Photos (up to 5)", class: "block text-sm font-medium text-walnut mb-1" %>
+    
+    <% if f.object.images.attached? %>
+      <div class="mb-3 grid grid-cols-2 gap-4 sm:grid-cols-3">
+        <% f.object.images.each do |image| %>
+          <div class="relative group">
+            <%= image_tag image, class: "w-full h-24 object-cover rounded-lg border border-sand" %>
+            <div class="absolute top-1 right-1">
+              <label class="flex items-center justify-center w-6 h-6 bg-white/90 rounded-full shadow-sm cursor-pointer hover:bg-terracotta hover:text-white transition">
+                <%= check_box_tag "remove_image_ids[]", image.id, false, class: "sr-only peer" %>
+                <span class="text-xs font-bold text-terracotta peer-checked:hidden">×</span>
+                <span class="hidden peer-checked:block text-xs font-bold">✓</span>
+              </label>
+            </div>
+            <!-- Overlay to indicate deletion -->
+            <div class="absolute inset-0 bg-terracotta/20 rounded-lg hidden group-has-[:checked]:block pointer-events-none flex items-center justify-center">
+              <span class="bg-white/90 text-terracotta font-bold px-2 py-1 rounded-md text-xs shadow-sm">Removed</span>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+
     <%= f.file_field :images, multiple: true, accept: "image/*",
-        class: "block w-full text-sm text-walnut file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-parchment file:text-clay hover:file:bg-sand file:transition" %>
+        class: "block w-full text-sm text-walnut file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-parchment file:text-clay hover:file:bg-sand file:transition cursor-pointer" %>
+    <p class="mt-1 text-xs text-walnut/70">New photos will be added to existing ones.</p>
   </div>
 </div>
