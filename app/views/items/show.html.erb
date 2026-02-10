@@ -3,6 +3,9 @@
     <div class="flex justify-between items-start mb-6">
       <div>
         <h1 class="text-3xl font-bold text-gray-900"><%= @item.name %></h1>
+        <% if @item.identifier_value.present? %>
+          <p class="text-lg text-gray-500 mt-1"><%= @item.identifier_field.to_s.humanize.titleize %>: <%= @item.identifier_value %></p>
+        <% end %>
         <div class="text-sm text-gray-500 mt-2">
           <span class="bg-gray-100 px-2 py-1 rounded"><%= @item.category %></span>
           <span class="bg-gray-100 px-2 py-1 rounded ml-1"><%= @item.subcategory %></span>

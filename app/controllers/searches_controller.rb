@@ -15,10 +15,12 @@ class SearchesController < ApplicationController
     render json: results.map { |item|
       {
         value: item.id,
-        label: item.name,
+        label: item.display_label,
+        name: item.name,
+        identifier: item.identifier_value,
+        identifier_field: item.identifier_field&.to_s&.humanize&.titleize,
         category: item.category,
-        subcategory: item.subcategory,
-        metadata: item.metadata
+        subcategory: item.subcategory
       }
     }
   end

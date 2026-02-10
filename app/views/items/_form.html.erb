@@ -3,7 +3,8 @@
               data: { 
                 controller: "item-form",
                 item_form_category_map_value: Item::CATEGORY_MAP.to_json,
-                item_form_attribute_definitions_value: Item::ATTRIBUTE_DEFINITIONS.to_json
+                item_form_attribute_definitions_value: Item::ATTRIBUTE_DEFINITIONS.to_json,
+                item_form_identifier_fields_value: Item::IDENTIFIER_FIELD.to_json
               } do |f| %>
   <% if item.errors.any? %>
     <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">

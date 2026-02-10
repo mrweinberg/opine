@@ -2,34 +2,63 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
     static targets = [
-        "step1", "step2", "step3",
-        "subcategorySelect",
+        "step1", "step2", "step3", "step4",
+        "categoryLabel", "subcategoryLabel",
+        "subcategoryButtons",
         "searchInput", "searchResults",
-        "existingItemForm", "newItemForm",
-        "itemFields", "itemNameInput",
-        "metadataContainer"
+        "existingItemForm", "existingItemHeader", "newItemForm",
+        "itemFields", "metadataContainer"
     ]
     static values = {
         categoryMap: Object,
-        attributeDefinitions: Object
+        attributeDefinitions: Object,
+        identifierFields: Object
     }
 
     connect() {
-        this.showStep(1)
+        this.goToStep(1)
     }
 
-    // Step 1: Subcategory Selection
+    // Step 1: Category Selection
+    selectCategory(event) {
+        const category = event.currentTarget.value
+        if (!category) return
+
+        this.currentCategory = category
+
+        // Render subcategory buttons
+        const subcategories = this.categoryMapValue[category] || []
+        this.categoryLabelTarget.textContent = category.toLowerCase()
+        this.subcategoryButtonsTarget.innerHTML = subcategories.map(sub => `
+            <button type="button"
+                    class="p-4 border-2 rounded-xl hover:border-blue-500 hover:bg-blue-50 text-left transition"
+                    data-action="click->review-flow#selectSubcategory"
+                    value="${sub}">
+                <span class="font-medium text-gray-900 block pointer-events-none">${sub}</span>
+            </button>
+        `).join("")
+
+        this.goToStep(2)
+    }
+
+    // Step 2: Subcategory Selection
     selectSubcategory(event) {
-        const subcategory = event.target.value
+        const subcategory = event.currentTarget.value
         if (!subcategory) return
 
         this.currentSubcategory = subcategory
-        this.showStep(2)
-        // Focus search input
+        this.subcategoryLabelTarget.textContent = subcategory.toLowerCase()
+
+        // Clear search
+        this.searchInputTarget.value = ""
+        this.searchResultsTarget.innerHTML = ""
+        this.searchResultsTarget.classList.add("hidden")
+
+        this.goToStep(3)
         setTimeout(() => this.searchInputTarget.focus(), 100)
     }
 
-    // Step 2: Search Logic
+    // Step 3: Search Logic
     search() {
         clearTimeout(this.timeout)
         this.timeout = setTimeout(() => {
@@ -54,28 +83,33 @@ export default class extends Controller {
     renderResults(items, query) {
         this.searchResultsTarget.classList.remove("hidden")
 
-        let html = items.map(item => `
+        let html = items.map(item => {
+            const identifierHtml = item.identifier
+                ? `<div class="text-xs text-gray-500">${item.identifier_field}: ${item.identifier}</div>`
+                : ''
+            return `
       <div class="p-3 hover:bg-gray-50 cursor-pointer border-b last:border-0"
            data-action="click->review-flow#selectExistingItem"
            data-item-id="${item.value}"
            data-item-name="${item.label}">
         <div class="font-medium text-gray-900">${item.label}</div>
-        <div class="text-xs text-gray-500">${item.metadata?.city || item.metadata?.producer || ''}</div>
+        ${identifierHtml}
       </div>
-    `).join("")
+    `
+        }).join("")
 
         // "Create new" option
         html += `
       <div class="p-3 hover:bg-blue-50 cursor-pointer text-blue-700 font-medium border-t"
            data-action="click->review-flow#selectNewItem">
-        + Create "${query}" as new item
+        + Create "${this.escapeHtml(query)}" as new ${this.currentSubcategory}
       </div>
     `
 
         this.searchResultsTarget.innerHTML = html
     }
 
-    // Step 3: Branching paths
+    // Step 4: Branching paths
 
     selectExistingItem(event) {
         const itemEl = event.currentTarget
@@ -86,11 +120,17 @@ export default class extends Controller {
         const form = this.existingItemFormTarget.querySelector("form")
         form.action = `/items/${itemId}/reviews`
 
+        // Show item name in header
+        this.existingItemHeaderTarget.innerHTML = `
+            <h2 class="text-xl font-bold text-gray-900">${this.escapeHtml(itemName)}</h2>
+            <div class="text-sm text-gray-500 mt-1">${this.currentCategory} › ${this.currentSubcategory}</div>
+        `
+
         // Show form container
         this.existingItemFormTarget.classList.remove("hidden")
         this.newItemFormTarget.classList.add("hidden")
 
-        this.showStep(3)
+        this.goToStep(4)
     }
 
     selectNewItem() {
@@ -106,17 +146,13 @@ export default class extends Controller {
         const subcategoryInput = this.newItemFormTarget.querySelector("input[name='item[subcategory]']")
 
         nameInput.value = query
+        categoryInput.value = this.currentCategory
         subcategoryInput.value = this.currentSubcategory
-        // Find category from subcategory map
-        const category = Object.keys(this.categoryMapValue).find(cat =>
-            this.categoryMapValue[cat].includes(this.currentSubcategory)
-        )
-        categoryInput.value = category
 
         // Render metadata fields
         this.renderMetadataFields(this.currentSubcategory)
 
-        this.showStep(3)
+        this.goToStep(4)
     }
 
     renderMetadataFields(subcategory) {
@@ -124,25 +160,39 @@ export default class extends Controller {
         container.innerHTML = ""
 
         const attributes = this.attributeDefinitionsValue[subcategory] || []
+        const identifierAttr = this.identifierFieldsValue[subcategory]
 
         attributes.forEach(attr => {
+            const isIdentifier = attr === identifierAttr
+            const starHtml = isIdentifier ? ' <span class="text-red-500">★</span>' : ''
             const wrapper = document.createElement("div")
             wrapper.innerHTML = `
-        <label class="block text-sm font-medium text-gray-700 mb-1 capitalize">${attr.replace(/_/g, ' ')}</label>
+        <label class="block text-sm font-medium text-gray-700 mb-1 capitalize">${attr.replace(/_/g, ' ')}${starHtml}</label>
         <input type="text" name="item[metadata][${attr}]" 
-               class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+               class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500${isIdentifier ? ' ring-2 ring-blue-200' : ''}">
       `
             container.appendChild(wrapper)
         })
     }
 
-    showStep(stepNumber) {
-        [this.step1Target, this.step2Target, this.step3Target].forEach((el, index) => {
+    goToStep(stepOrEvent) {
+        const stepNumber = typeof stepOrEvent === 'number'
+            ? stepOrEvent
+            : parseInt(stepOrEvent.params?.step || stepOrEvent)
+
+        const steps = [this.step1Target, this.step2Target, this.step3Target, this.step4Target]
+        steps.forEach((el, index) => {
             if (index + 1 === stepNumber) {
                 el.classList.remove("hidden")
             } else {
                 el.classList.add("hidden")
             }
         })
+    }
+
+    escapeHtml(text) {
+        const div = document.createElement('div')
+        div.textContent = text
+        return div.innerHTML
     }
 }

@@ -7,6 +7,19 @@ class Item < ApplicationRecord
     "Things"      => [ "Beer", "Wine", "Liquor" ]
   }.freeze
 
+  IDENTIFIER_FIELD = {
+    "Restaurants" => :city,
+    "Bars"        => :city,
+    "Parks"       => :city,
+    "Museums"     => :city,
+    "Beer"        => :brewery,
+    "Wine"        => :winemaker,
+    "Liquor"      => :producer,
+    "Movies"      => :director,
+    "TV Shows"    => :season,
+    "Games"       => :developer
+  }.freeze
+
   ATTRIBUTE_DEFINITIONS = {
     "Restaurants" => [ :cuisine, :price_range, :neighborhood ],
     "Bars"        => [ :vibe, :specialty, :neighborhood, :price_range ],
@@ -34,12 +47,28 @@ class Item < ApplicationRecord
   validates :category, presence: true, inclusion: { in: CATEGORY_MAP.keys }
   validates :subcategory, presence: true
   validate :subcategory_matches_category
+  validate :required_attributes_present
 
   scope :by_category, ->(category) { where(category: category) }
   scope :by_subcategory, ->(subcategory) { where(subcategory: subcategory) }
 
   def expected_attributes
     ATTRIBUTE_DEFINITIONS[subcategory] || []
+  end
+
+  def identifier_field
+    IDENTIFIER_FIELD[subcategory]
+  end
+
+  def identifier_value
+    field = identifier_field
+    field ? metadata&.dig(field.to_s) : nil
+  end
+
+  # "Porter — Bell's" or just "Porter" if no identifier
+  def display_label
+    id_val = identifier_value
+    id_val.present? ? "#{name} — #{id_val}" : name
   end
 
   def recalculate_score!
@@ -56,5 +85,16 @@ class Item < ApplicationRecord
     return if valid_subcategories.include?(subcategory)
 
     errors.add(:subcategory, "is not valid for category '#{category}'")
+  end
+
+  def required_attributes_present
+    return if subcategory.blank?
+
+    missing = expected_attributes.select { |attr| metadata&.dig(attr.to_s).blank? }
+    return if missing.empty?
+
+    missing.each do |attr|
+      errors.add(:base, "#{attr.to_s.humanize.titleize} is required for #{subcategory}")
+    end
   end
 end

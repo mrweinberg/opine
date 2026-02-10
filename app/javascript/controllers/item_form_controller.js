@@ -5,7 +5,8 @@ export default class extends Controller {
     static targets = ["category", "subcategory", "metadataFields"]
     static values = {
         categoryMap: Object,
-        attributeDefinitions: Object
+        attributeDefinitions: Object,
+        identifierFields: Object
     }
 
     connect() {
@@ -53,14 +54,16 @@ export default class extends Controller {
             const fieldName = this.humanize(attr)
             const inputName = `item[metadata][${attr}]`
             const inputId = `item_metadata_${attr}`
+            const isIdentifier = this.identifierFieldsValue[subcategory] === attr
+            const starHtml = isIdentifier ? ' <span class="text-red-500">★</span>' : ''
 
             const wrapper = document.createElement("div")
             wrapper.innerHTML = `
-        <label for="${inputId}" class="block text-sm font-medium text-gray-700 mb-1">${fieldName}</label>
+        <label for="${inputId}" class="block text-sm font-medium text-gray-700 mb-1">${fieldName}${starHtml}</label>
         <input type="text" 
                name="${inputName}" 
                id="${inputId}"
-               class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+               class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500${isIdentifier ? ' ring-2 ring-blue-200' : ''}"
                placeholder="Enter ${fieldName.toLowerCase()}...">
       `
             container.appendChild(wrapper)
