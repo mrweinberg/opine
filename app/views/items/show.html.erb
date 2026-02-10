@@ -73,7 +73,9 @@
       <% else %>
         <div class="bg-gray-50 rounded-lg p-4 mb-4 text-sm text-gray-600">
           You've already reviewed this item.
-          <%= link_to "Edit your review", "##{dom_id(existing_review)}", class: "text-blue-600 hover:underline" %>
+          <%= link_to "Edit your review", edit_item_review_path(@item, existing_review), 
+              class: "text-blue-600 hover:underline",
+              data: { turbo_frame: dom_id(existing_review) } %>
         </div>
       <% end %>
     <% else %>

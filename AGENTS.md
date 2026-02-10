@@ -9,6 +9,7 @@ Ensure all code is covered by tests. If you've added new functionality, add test
 If you've completed a task in DESIGN.md, update the file to mark it as done.
 If you've made a structural change to the codebase or schema, update DESIGN.md to reflect the changes.
 If this file, AGENTS.md, needs to be updated, update it to reflect the changes.
+If you have any questions, please ask me.
 
 ## Tech Stack Constraints
 

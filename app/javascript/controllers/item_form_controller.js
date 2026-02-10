@@ -6,7 +6,8 @@ export default class extends Controller {
     static values = {
         categoryMap: Object,
         attributeDefinitions: Object,
-        identifierFields: Object
+        identifierFields: Object,
+        existingMetadata: Object
     }
 
     connect() {
@@ -56,6 +57,7 @@ export default class extends Controller {
             const inputId = `item_metadata_${attr}`
             const isIdentifier = this.identifierFieldsValue[subcategory] === attr
             const starHtml = isIdentifier ? ' <span class="text-red-500">★</span>' : ''
+            const existingValue = this.existingMetadataValue[attr] || ''
 
             const wrapper = document.createElement("div")
             wrapper.innerHTML = `
@@ -63,11 +65,16 @@ export default class extends Controller {
         <input type="text" 
                name="${inputName}" 
                id="${inputId}"
+               value="${this.escapeAttr(existingValue)}"
                class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500${isIdentifier ? ' ring-2 ring-blue-200' : ''}"
                placeholder="Enter ${fieldName.toLowerCase()}...">
       `
             container.appendChild(wrapper)
         })
+    }
+
+    escapeAttr(str) {
+        return str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
     }
 
     humanize(str) {

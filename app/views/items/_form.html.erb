@@ -4,7 +4,8 @@
                 controller: "item-form",
                 item_form_category_map_value: Item::CATEGORY_MAP.to_json,
                 item_form_attribute_definitions_value: Item::ATTRIBUTE_DEFINITIONS.to_json,
-                item_form_identifier_fields_value: Item::IDENTIFIER_FIELD.to_json
+                item_form_identifier_fields_value: Item::IDENTIFIER_FIELD.to_json,
+                item_form_existing_metadata_value: (item.metadata || {}).to_json
               } do |f| %>
   <% if item.errors.any? %>
     <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
@@ -45,20 +46,6 @@
   <%# Dynamic metadata fields based on subcategory %>
   <div data-item-form-target="metadataFields" class="hidden grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
     <%# Fields will be dynamically inserted by Stimulus controller %>
-    <% if item.metadata.present? %>
-      <% item.metadata.each do |key, value| %>
-        <div>
-          <label for="item_metadata_<%= key %>" class="block text-sm font-medium text-gray-700 mb-1">
-            <%= key.to_s.humanize.titleize %>
-          </label>
-          <input type="text" 
-                 name="item[metadata][<%= key %>]" 
-                 id="item_metadata_<%= key %>"
-                 value="<%= value %>"
-                 class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-        </div>
-      <% end %>
-    <% end %>
   </div>
 
   <div class="flex gap-4 pt-4">

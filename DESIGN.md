@@ -6,6 +6,7 @@ Opine is a review aggregation web application allowing users to rate and review 
 
 - **Core Philosophy:** A strict 6-point integer scale (1-6) to force decisive opinions.
 - **Key Features:** User Reviews, Image Galleries, Dynamic Categories (ABV/Producer), Curation Lists, and AI-Powered Insights (Auto-fill metadata & Sentiment summaries).
+- **Tone:** Informal, friendly, and opinionated.
 
 ---
 
