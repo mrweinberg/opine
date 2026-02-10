@@ -1,53 +1,47 @@
 <div class="max-w-4xl mx-auto py-8 px-4">
   <div class="flex justify-between items-center mb-8">
-    <h1 class="text-3xl font-bold text-gray-900">Items</h1>
+    <h1 class="font-heading text-3xl font-bold text-espresso">Items</h1>
     <% if user_signed_in? %>
-      <%= link_to "Add Review", new_review_wizard_path, class: "bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition" %>
+      <%= link_to "Add Review", new_review_wizard_path, class: "bg-terracotta hover:bg-terracotta-dark text-white font-semibold py-2 px-4 rounded-lg transition" %>
     <% end %>
   </div>
 
-  <% if notice.present? %>
-    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6">
-      <%= notice %>
-    </div>
-  <% end %>
-
   <div class="grid gap-4">
     <% @items.each do |item| %>
-      <div class="bg-white rounded-lg shadow p-6 hover:shadow-md transition">
+      <div class="bg-warm-white rounded-lg border border-sand p-6 hover:border-clay/40 transition">
         <div class="flex justify-between items-start">
           <div>
-            <%= link_to item.name, item, class: "text-xl font-semibold text-gray-900 hover:text-blue-600" %>
+            <%= link_to item.name, item, class: "font-heading text-xl font-semibold text-espresso hover:text-clay transition" %>
             <% if item.identifier_value.present? %>
-              <span class="text-sm text-gray-500 ml-1">— <%= item.identifier_value %></span>
+              <span class="text-sm text-walnut ml-1">— <%= item.identifier_value %></span>
             <% end %>
-            <div class="text-sm text-gray-500 mt-1">
-              <span class="bg-gray-100 px-2 py-1 rounded"><%= item.category %></span>
-              <span class="bg-gray-100 px-2 py-1 rounded ml-1"><%= item.subcategory %></span>
+            <div class="text-sm text-walnut mt-1">
+              <span class="bg-parchment px-2 py-1 rounded"><%= item.category %></span>
+              <span class="bg-parchment px-2 py-1 rounded ml-1"><%= item.subcategory %></span>
             </div>
           </div>
           <% if item.average_score.present? %>
-            <div class="text-2xl font-bold text-blue-600">
+            <div class="text-2xl font-bold font-heading <%= score_text_class(item.average_score.round) %>">
               <%= number_with_precision(item.average_score, precision: 1) %>
             </div>
           <% end %>
         </div>
         <% if item.ai_summary.present? %>
-          <p class="text-gray-600 mt-3 text-sm"><%= truncate(item.ai_summary, length: 150) %></p>
+          <p class="text-walnut mt-3 text-sm"><%= truncate(item.ai_summary, length: 150) %></p>
         <% end %>
-        <div class="text-xs text-gray-400 mt-3">
+        <div class="text-xs text-walnut/60 mt-3">
           Added by <%= item.created_by_user&.display_name || item.created_by_user&.username || "Unknown" %>
         </div>
       </div>
     <% end %>
 
     <% if @items.empty? %>
-      <div class="text-center py-12 text-gray-500">
-        <p class="text-lg">No items yet.</p>
+      <div class="text-center py-12 text-walnut">
+        <p class="text-lg font-heading">No items yet.</p>
         <% if user_signed_in? %>
-          <p class="mt-2"><%= link_to "Create the first one!", new_item_path, class: "text-blue-600 hover:underline" %></p>
+          <p class="mt-2"><%= link_to "Create the first one!", new_item_path, class: "text-clay hover:underline" %></p>
         <% else %>
-          <p class="mt-2"><%= link_to "Sign in", new_user_session_path, class: "text-blue-600 hover:underline" %> to add items.</p>
+          <p class="mt-2"><%= link_to "Sign in", new_user_session_path, class: "text-clay hover:underline" %> to add items.</p>
         <% end %>
       </div>
     <% end %>

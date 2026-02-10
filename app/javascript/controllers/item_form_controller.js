@@ -58,17 +58,17 @@ export default class extends Controller {
             const inputName = `item[metadata][${attr}]`
             const inputId = `item_metadata_${attr}`
             const isIdentifier = identifierAttrs.includes(attr)
-            const starHtml = isIdentifier ? ' <span class="text-red-500">★</span>' : ''
+            const starHtml = isIdentifier ? ' <span class="text-terracotta">★</span>' : ''
             const existingValue = this.existingMetadataValue[attr] || ''
 
             const wrapper = document.createElement("div")
             wrapper.innerHTML = `
-        <label for="${inputId}" class="block text-sm font-medium text-gray-700 mb-1">${fieldName}${starHtml}</label>
+        <label for="${inputId}" class="block text-sm font-medium text-walnut mb-1">${fieldName}${starHtml}</label>
         <input type="text" 
                name="${inputName}" 
                id="${inputId}"
                value="${this.escapeAttr(existingValue)}"
-               class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500${isIdentifier ? ' ring-2 ring-blue-200' : ''}"
+               class="w-full rounded-lg border-sand bg-warm-white shadow-sm focus:border-clay focus:ring-clay/40${isIdentifier ? ' ring-2 ring-clay/30' : ''}"
                placeholder="Enter ${fieldName.toLowerCase()}...">
       `
             container.appendChild(wrapper)

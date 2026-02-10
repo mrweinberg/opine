@@ -31,10 +31,10 @@ export default class extends Controller {
         this.categoryLabelTarget.textContent = category.toLowerCase()
         this.subcategoryButtonsTarget.innerHTML = subcategories.map(sub => `
             <button type="button"
-                    class="p-4 border-2 rounded-xl hover:border-blue-500 hover:bg-blue-50 text-left transition"
+                    class="p-4 border-2 border-sand rounded-xl hover:border-clay hover:bg-parchment text-left transition"
                     data-action="click->review-flow#selectSubcategory"
                     value="${sub}">
-                <span class="font-medium text-gray-900 block pointer-events-none">${sub}</span>
+                <span class="font-medium text-espresso block pointer-events-none">${sub}</span>
             </button>
         `).join("")
 
@@ -85,14 +85,14 @@ export default class extends Controller {
 
         let html = items.map(item => {
             const identifierHtml = item.identifier
-                ? `<div class="text-xs text-gray-500">${item.identifier_field}: ${item.identifier}</div>`
+                ? `<div class="text-xs text-walnut/70">${item.identifier_field}: ${item.identifier}</div>`
                 : ''
             return `
-      <div class="p-3 hover:bg-gray-50 cursor-pointer border-b last:border-0"
+      <div class="p-3 hover:bg-parchment cursor-pointer border-b border-sand last:border-0"
            data-action="click->review-flow#selectExistingItem"
            data-item-id="${item.value}"
            data-item-name="${item.label}">
-        <div class="font-medium text-gray-900">${item.label}</div>
+        <div class="font-medium text-espresso">${item.label}</div>
         ${identifierHtml}
       </div>
     `
@@ -100,7 +100,7 @@ export default class extends Controller {
 
         // "Create new" option
         html += `
-      <div class="p-3 hover:bg-blue-50 cursor-pointer text-blue-700 font-medium border-t"
+      <div class="p-3 hover:bg-parchment cursor-pointer text-clay font-medium border-t border-sand"
            data-action="click->review-flow#selectNewItem">
         + Create "${this.escapeHtml(query)}" as new ${this.currentSubcategory}
       </div>
@@ -164,12 +164,12 @@ export default class extends Controller {
 
         attributes.forEach(attr => {
             const isIdentifier = identifierAttrs.includes(attr)
-            const starHtml = isIdentifier ? ' <span class="text-red-500">★</span>' : ''
+            const starHtml = isIdentifier ? ' <span class="text-terracotta">★</span>' : ''
             const wrapper = document.createElement("div")
             wrapper.innerHTML = `
-        <label class="block text-sm font-medium text-gray-700 mb-1 capitalize">${attr.replace(/_/g, ' ')}${starHtml}</label>
+        <label class="block text-sm font-medium text-walnut mb-1 capitalize">${attr.replace(/_/g, ' ')}${starHtml}</label>
         <input type="text" name="item[metadata][${attr}]" 
-               class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500${isIdentifier ? ' ring-2 ring-blue-200' : ''}">
+               class="w-full rounded-lg border-sand bg-warm-white shadow-sm focus:border-clay focus:ring-clay/40${isIdentifier ? ' ring-2 ring-clay/30' : ''}">
       `
             container.appendChild(wrapper)
         })

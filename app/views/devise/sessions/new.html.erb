@@ -1,44 +1,44 @@
 <div class="max-w-md mx-auto px-4 py-12">
-  <div class="bg-white rounded-2xl shadow-lg p-8">
+  <div class="bg-warm-white rounded-2xl border border-sand p-8">
     <div class="text-center mb-8">
-      <h2 class="text-3xl font-bold text-gray-900">Welcome back</h2>
-      <p class="text-gray-500 mt-2">Sign in to your Opine account</p>
+      <h2 class="font-heading text-3xl font-bold text-espresso">Welcome back</h2>
+      <p class="text-walnut mt-2">Sign in to your Opine account</p>
     </div>
 
     <%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
       <% if flash[:alert] %>
-        <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6 text-sm">
+        <div class="bg-parchment border border-clay/30 text-walnut px-4 py-3 rounded-lg mb-6 text-sm">
           <%= flash[:alert] %>
         </div>
       <% end %>
 
       <div class="space-y-5">
         <div>
-          <%= f.label :email, class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.label :email, class: "block text-sm font-medium text-walnut mb-1" %>
           <%= f.email_field :email, autofocus: true, autocomplete: "email",
-              class: "w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition",
+              class: "w-full px-4 py-3 bg-warm-white border border-sand rounded-xl focus:outline-none focus:ring-2 focus:ring-clay/40 focus:border-clay transition",
               placeholder: "you@example.com" %>
         </div>
 
         <div>
-          <%= f.label :password, class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.label :password, class: "block text-sm font-medium text-walnut mb-1" %>
           <%= f.password_field :password, autocomplete: "current-password",
-              class: "w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition",
+              class: "w-full px-4 py-3 bg-warm-white border border-sand rounded-xl focus:outline-none focus:ring-2 focus:ring-clay/40 focus:border-clay transition",
               placeholder: "••••••••" %>
         </div>
 
         <div class="flex items-center justify-between">
           <label class="flex items-center gap-2 cursor-pointer">
-            <%= f.check_box :remember_me, class: "w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" %>
-            <span class="text-sm text-gray-600">Remember me</span>
+            <%= f.check_box :remember_me, class: "w-4 h-4 rounded border-sand text-terracotta focus:ring-clay" %>
+            <span class="text-sm text-walnut">Remember me</span>
           </label>
 
           <%= link_to "Forgot password?", new_user_password_path,
-              class: "text-sm text-blue-600 hover:text-blue-800 font-medium" %>
+              class: "text-sm text-clay hover:text-espresso font-medium transition" %>
         </div>
 
         <div class="pt-2">
-          <%= f.submit "Sign in", class: "w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-xl transition cursor-pointer shadow-sm hover:shadow-md" %>
+          <%= f.submit "Sign in", class: "w-full bg-terracotta hover:bg-terracotta-dark text-white font-semibold py-3 px-4 rounded-xl transition cursor-pointer" %>
         </div>
       </div>
     <% end %>
@@ -47,10 +47,10 @@
       <div class="mt-6">
         <div class="relative">
           <div class="absolute inset-0 flex items-center">
-            <div class="w-full border-t border-gray-200"></div>
+            <div class="w-full border-t border-sand"></div>
           </div>
           <div class="relative flex justify-center text-sm">
-            <span class="px-4 bg-white text-gray-500">or continue with</span>
+            <span class="px-4 bg-warm-white text-walnut">or continue with</span>
           </div>
         </div>
 
@@ -58,7 +58,7 @@
           <% resource_class.omniauth_providers.each do |provider| %>
             <%= link_to omniauth_authorize_path(resource_name, provider),
                 method: :post,
-                class: "w-full flex items-center justify-center gap-3 px-4 py-3 border-2 border-gray-200 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition font-medium text-gray-700" do %>
+                class: "w-full flex items-center justify-center gap-3 px-4 py-3 border-2 border-sand rounded-xl hover:bg-parchment hover:border-clay/40 transition font-medium text-walnut" do %>
               <% if provider == :google_oauth2 %>
                 <svg class="w-5 h-5" viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
@@ -76,9 +76,9 @@
       </div>
     <% end %>
 
-    <div class="mt-8 text-center text-sm text-gray-600">
+    <div class="mt-8 text-center text-sm text-walnut">
       Don't have an account?
-      <%= link_to "Sign up", new_user_registration_path, class: "text-blue-600 hover:text-blue-800 font-semibold" %>
+      <%= link_to "Sign up", new_user_registration_path, class: "text-clay hover:text-espresso font-semibold transition" %>
     </div>
   </div>
 </div>

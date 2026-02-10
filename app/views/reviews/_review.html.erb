@@ -1,15 +1,15 @@
 <%= turbo_frame_tag dom_id(review) do %>
-  <div class="bg-white rounded-lg shadow p-4 mb-4" id="<%= dom_id(review) %>">
+  <div class="bg-warm-white rounded-lg border border-sand p-4 mb-4" id="<%= dom_id(review) %>">
     <div class="flex justify-between items-start">
       <div class="flex items-center gap-3">
-        <div class="text-2xl font-bold text-blue-600 bg-blue-50 w-12 h-12 rounded-full flex items-center justify-center">
+        <div class="text-xl font-bold font-heading w-12 h-12 rounded-full flex items-center justify-center text-white <%= score_bg_class(review.score) %>">
           <%= review.score %>
         </div>
         <div>
-          <div class="font-semibold text-gray-900">
+          <div class="font-semibold text-espresso">
             <%= review.user.display_name || review.user.username %>
           </div>
-          <div class="text-xs text-gray-500">
+          <div class="text-xs text-walnut/60">
             <%= time_ago_in_words(review.created_at) %> ago
           </div>
         </div>
@@ -19,21 +19,21 @@
         <div class="flex gap-2">
           <% if policy(review).update? %>
             <%= link_to "Edit", edit_item_review_path(review.item, review),
-                class: "text-sm text-gray-500 hover:text-blue-600",
+                class: "text-sm text-walnut hover:text-clay transition",
                 data: { turbo_frame: dom_id(review) } %>
           <% end %>
           <% if policy(review).destroy? %>
             <%= button_to "Delete", item_review_path(review.item, review),
                 method: :delete,
                 data: { turbo_confirm: "Delete this review?" },
-                class: "text-sm text-gray-500 hover:text-red-600" %>
+                class: "text-sm text-walnut hover:text-score-1 transition" %>
           <% end %>
         </div>
       <% end %>
     </div>
 
     <% if review.body.present? %>
-      <p class="text-gray-700 mt-3"><%= review.body %></p>
+      <p class="text-walnut mt-3"><%= review.body %></p>
     <% end %>
 
     <% if review.images.attached? %>

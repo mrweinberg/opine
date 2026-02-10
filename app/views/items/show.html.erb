@@ -1,62 +1,70 @@
 <div class="max-w-2xl mx-auto py-8 px-4">
-  <div class="bg-white rounded-lg shadow-lg p-8">
+  <div class="bg-warm-white rounded-lg border border-sand p-8">
     <div class="flex justify-between items-start mb-6">
       <div>
-        <h1 class="text-3xl font-bold text-gray-900"><%= @item.name %></h1>
+        <h1 class="font-heading text-3xl font-bold text-espresso"><%= @item.name %></h1>
         <% if @item.identifier_value.present? %>
-          <p class="text-lg text-gray-500 mt-1"><%= @item.identifier_field.to_s.humanize.titleize %>: <%= @item.identifier_value %></p>
+          <p class="text-lg text-walnut mt-1">
+            <% @item.identifier_fields.each_with_index do |field, i| %>
+              <% val = @item.metadata&.dig(field.to_s) %>
+              <% if val.present? %>
+                <% if i > 0 %> · <% end %>
+                <span class="text-walnut/70"><%= field.to_s.humanize.titleize %>:</span> <%= val %>
+              <% end %>
+            <% end %>
+          </p>
         <% end %>
-        <div class="text-sm text-gray-500 mt-2">
-          <span class="bg-gray-100 px-2 py-1 rounded"><%= @item.category %></span>
-          <span class="bg-gray-100 px-2 py-1 rounded ml-1"><%= @item.subcategory %></span>
+        <div class="text-sm text-walnut mt-2">
+          <span class="bg-parchment px-2 py-1 rounded"><%= @item.category %></span>
+          <span class="bg-parchment px-2 py-1 rounded ml-1"><%= @item.subcategory %></span>
         </div>
       </div>
       <div id="item_score" class="text-center">
         <% if @item.average_score.present? %>
-          <div class="text-4xl font-bold text-blue-600">
+          <div class="font-heading text-4xl font-bold <%= score_text_class(@item.average_score.round) %>">
             <%= number_with_precision(@item.average_score, precision: 1) %>
           </div>
-          <div class="text-xs text-gray-500"><%= pluralize(@item.reviews_count, "review") %></div>
+          <div class="text-xs text-walnut/60"><%= pluralize(@item.reviews_count, "review") %></div>
         <% else %>
-          <div class="text-sm text-gray-400">No reviews yet</div>
+          <div class="text-sm text-walnut/50">No reviews yet</div>
         <% end %>
       </div>
     </div>
 
     <% if @item.ai_summary.present? %>
-      <div class="bg-blue-50 rounded-lg p-4 mb-6">
-        <div class="text-xs text-blue-600 font-semibold mb-1">✨ AI Summary</div>
-        <p class="text-gray-700"><%= @item.ai_summary %></p>
+      <div class="bg-parchment rounded-lg p-4 mb-6">
+        <div class="text-xs text-clay font-semibold mb-1">✨ AI Summary</div>
+        <p class="text-walnut"><%= @item.ai_summary %></p>
       </div>
     <% end %>
 
     <% if @item.metadata.present? && @item.metadata.any? %>
-      <div class="border-t pt-4 mb-6">
-        <h3 class="text-sm font-semibold text-gray-500 mb-3">Details</h3>
+      <div class="border-t border-sand pt-4 mb-6">
+        <h3 class="text-sm font-semibold text-walnut/70 mb-3">Details</h3>
         <dl class="grid grid-cols-2 gap-2 text-sm">
           <% @item.metadata.each do |key, value| %>
-            <dt class="text-gray-500 capitalize"><%= key.to_s.humanize %></dt>
-            <dd class="text-gray-900"><%= value %></dd>
+            <dt class="text-walnut/70 capitalize"><%= key.to_s.humanize %></dt>
+            <dd class="text-espresso"><%= value %></dd>
           <% end %>
         </dl>
       </div>
     <% end %>
 
-    <div class="flex gap-3 pt-4 border-t">
-      <%= link_to "← Back", items_path, class: "text-gray-600 hover:text-gray-900" %>
+    <div class="flex gap-3 pt-4 border-t border-sand">
+      <%= link_to "← Back", items_path, class: "text-walnut hover:text-espresso transition" %>
 
       <% if user_signed_in? && policy(@item).update? %>
-        <%= link_to "Edit", edit_item_path(@item), class: "text-blue-600 hover:underline" %>
+        <%= link_to "Edit", edit_item_path(@item), class: "text-clay hover:underline" %>
       <% end %>
 
       <% if user_signed_in? && policy(@item).destroy? %>
         <%= button_to "Delete", @item, method: :delete,
             data: { turbo_confirm: "Are you sure?" },
-            class: "text-red-600 hover:underline" %>
+            class: "text-score-1 hover:underline" %>
       <% end %>
     </div>
 
-    <div class="text-xs text-gray-400 mt-6">
+    <div class="text-xs text-walnut/50 mt-6">
       Added by <%= @item.created_by_user&.display_name || @item.created_by_user&.username || "Unknown" %>
       on <%= @item.created_at.strftime("%B %d, %Y") %>
     </div>
@@ -64,23 +72,23 @@
 
   <!-- Reviews Section -->
   <div class="mt-8">
-    <h2 class="text-xl font-bold text-gray-900 mb-4">Reviews</h2>
+    <h2 class="font-heading text-xl font-bold text-espresso mb-4">Reviews</h2>
 
     <% if user_signed_in? %>
       <% existing_review = @item.reviews.find_by(user: current_user) %>
       <% if existing_review.nil? %>
         <%= render "reviews/form", item: @item, review: @item.reviews.build %>
       <% else %>
-        <div class="bg-gray-50 rounded-lg p-4 mb-4 text-sm text-gray-600">
+        <div class="bg-parchment rounded-lg p-4 mb-4 text-sm text-walnut">
           You've already reviewed this item.
           <%= link_to "Edit your review", edit_item_review_path(@item, existing_review), 
-              class: "text-blue-600 hover:underline",
+              class: "text-clay hover:underline",
               data: { turbo_frame: dom_id(existing_review) } %>
         </div>
       <% end %>
     <% else %>
-      <div class="bg-gray-50 rounded-lg p-4 mb-4 text-center">
-        <%= link_to "Sign in", new_user_session_path, class: "text-blue-600 hover:underline" %> to leave a review.
+      <div class="bg-parchment rounded-lg p-4 mb-4 text-center text-walnut">
+        <%= link_to "Sign in", new_user_session_path, class: "text-clay hover:underline" %> to leave a review.
       </div>
     <% end %>
 
@@ -89,7 +97,7 @@
     </div>
 
     <% if @item.reviews.empty? %>
-      <p class="text-gray-500 text-center py-8">No reviews yet. Be the first!</p>
+      <p class="text-walnut/60 text-center py-8 font-heading italic">No reviews yet. Be the first!</p>
     <% end %>
   </div>
 </div>
