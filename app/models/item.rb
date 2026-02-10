@@ -22,7 +22,7 @@ class Item < ApplicationRecord
 
   ATTRIBUTE_DEFINITIONS = {
     "Restaurants" => [ :cuisine, :price_range, :neighborhood ],
-    "Bars"        => [ :vibe, :specialty, :neighborhood, :price_range ],
+    "Bars"        => [ :city, :vibe, :specialty, :neighborhood, :price_range ],
     "Liquor"      => [ :abv, :producer, :age_statement, :type ],
     "Wine"        => [ :varietal, :region, :vintage, :winemaker, :style ],
     "Beer"        => [ :style, :brewery, :abv ],
