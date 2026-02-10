@@ -68,7 +68,7 @@ export default class extends Controller {
                name="${inputName}" 
                id="${inputId}"
                value="${this.escapeAttr(existingValue)}"
-               class="w-full rounded-lg border-sand bg-warm-white shadow-sm focus:border-clay focus:ring-clay/40${isIdentifier ? ' ring-2 ring-clay/30' : ''}"
+               class="w-full rounded-lg border border-sand bg-warm-white shadow-sm focus:outline-none focus:border-clay focus:ring-2 focus:ring-clay/40${isIdentifier ? ' ring-2 ring-clay/30' : ''}"
                placeholder="Enter ${fieldName.toLowerCase()}...">
       `
             container.appendChild(wrapper)

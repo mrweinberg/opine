@@ -25,3 +25,15 @@
   --color-score-5: #7A9E6E;
   --color-score-6: #5E8C5A;
 }
+
+/* Global focus style override — earthy clay ring instead of browser blue */
+@layer base {
+
+  input:focus,
+  textarea:focus,
+  select:focus {
+    outline: none;
+    border-color: var(--color-clay);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-clay) 40%, transparent);
+  }
+}

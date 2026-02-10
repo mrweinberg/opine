@@ -6,7 +6,7 @@
       <% (1..6).each do |score| %>
         <label class="cursor-pointer">
           <%= f.radio_button :score, score, class: "peer sr-only" %>
-          <span class="peer-checked:bg-score-<%= score %> peer-checked:text-white peer-checked:border-score-<%= score %>
+          <span class="<%= score_input_classes(score) %> peer-checked:text-white
                        inline-flex items-center justify-center w-12 h-12 rounded-full border-2 border-sand
                        text-walnut font-bold hover:border-clay/60 transition text-lg">
             <%= score %>
