@@ -21,7 +21,7 @@ class Item < ApplicationRecord
   }.freeze
 
   ATTRIBUTE_DEFINITIONS = {
-    "Restaurants" => [ :cuisine, :price_range, :neighborhood ],
+    "Restaurants" => [ :cuisine, :price_range, :city, :neighborhood ],
     "Bars"        => [ :city, :vibe, :specialty, :neighborhood, :price_range ],
     "Liquor"      => [ :abv, :producer, :age_statement, :type ],
     "Wine"        => [ :varietal, :region, :vintage, :winemaker, :style ],
