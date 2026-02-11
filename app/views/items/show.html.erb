@@ -31,12 +31,17 @@
       </div>
     </div>
 
-    <% if @item.ai_summary.present? %>
-      <div class="bg-parchment rounded-lg p-4 mb-6">
-        <div class="text-xs text-clay font-semibold mb-1">✨ AI Summary</div>
-        <p class="text-walnut"><%= @item.ai_summary %></p>
-      </div>
+<%= turbo_stream_from @item %>
+
+    <%= render "items/ai_summary", item: @item %>
+
+    <% if user_signed_in? && policy(@item).regenerate_ai? %>
+      <%= button_to "🔄 Regenerate AI Summary", regenerate_ai_item_path(@item),
+          method: :post,
+          class: "text-xs text-clay hover:underline mb-4 inline-block",
+          data: { turbo_confirm: "Regenerate AI summary for this item?" } %>
     <% end %>
+
 
     <% if @item.metadata.present? && @item.metadata.any? %>
       <div class="border-t border-sand pt-4 mb-6">

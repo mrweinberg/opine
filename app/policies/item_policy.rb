@@ -21,6 +21,10 @@ class ItemPolicy < ApplicationPolicy
     record.reviews_count.zero?
   end
 
+  def regenerate_ai?
+    user.present? && user.admin_or_above?
+  end
+
   private
 
   def owner_or_admin?

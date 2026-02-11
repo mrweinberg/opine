@@ -2,7 +2,7 @@
 
 class ItemsController < ApplicationController
   before_action :authenticate_user!, except: [ :index, :show ]
-  before_action :set_item, only: [ :show, :edit, :update, :destroy ]
+  before_action :set_item, only: [ :show, :edit, :update, :destroy, :regenerate_ai ]
 
   def index
     @items = Item.includes(:created_by_user).order(created_at: :desc)
@@ -48,6 +48,13 @@ class ItemsController < ApplicationController
     authorize @item
     @item.destroy
     redirect_to items_path, notice: "Item was successfully deleted."
+  end
+
+  def regenerate_ai
+    authorize @item
+    @item.update_columns(ai_summary: nil, ai_estimated_score: nil, ai_last_updated_at: nil)
+    AiItemEnrichmentJob.perform_later(@item.id)
+    redirect_to @item, notice: "AI summary is being regenerated…"
   end
 
   private

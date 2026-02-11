@@ -1,0 +1,35 @@
+<div id="ai_summary_<%= item.id %>">
+  <% if item.ai_summary.present? && item.ai_summary != "Unavailable" %>
+    <div class="bg-parchment rounded-lg p-4 mb-6">
+      <div class="flex items-center justify-between mb-2">
+        <div class="text-xs text-clay font-semibold">✨ AI Summary</div>
+        <% if item.ai_estimated_score.present? %>
+          <div class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border border-sand text-sm">
+            <span class="text-walnut/60">AI estimates</span>
+            <span class="font-bold <%= score_text_class(item.ai_estimated_score) %>"><%= item.ai_estimated_score %>/6</span>
+          </div>
+        <% end %>
+      </div>
+      <p class="text-walnut text-sm leading-relaxed"><%= item.ai_summary %></p>
+      <% if item.ai_last_updated_at.present? %>
+        <div class="text-xs text-walnut/40 mt-2">
+          Updated <%= time_ago_in_words(item.ai_last_updated_at) %> ago
+        </div>
+      <% end %>
+    </div>
+  <% elsif item.ai_summary == "Unavailable" %>
+    <div class="bg-parchment/50 rounded-lg p-3 mb-6 text-center">
+      <span class="text-xs text-walnut/50">✨ AI summary unavailable</span>
+    </div>
+  <% elsif item.ai_summary.blank? && item.created_at > 5.minutes.ago %>
+    <div class="bg-parchment/50 rounded-lg p-4 mb-6 text-center">
+      <div class="flex items-center justify-center gap-2 text-sm text-walnut/60">
+        <svg class="animate-spin h-4 w-4 text-clay" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+        </svg>
+        <span>✨ Generating AI summary…</span>
+      </div>
+    </div>
+  <% end %>
+</div>

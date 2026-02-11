@@ -43,6 +43,8 @@ class Item < ApplicationRecord
 
   accepts_nested_attributes_for :reviews
 
+  after_create_commit :enrich_with_ai
+
   validates :name, presence: true, length: { maximum: 255 }
   validates :category, presence: true, inclusion: { in: CATEGORY_MAP.keys }
   validates :subcategory, presence: true
@@ -103,5 +105,9 @@ class Item < ApplicationRecord
     missing.each do |attr|
       errors.add(:base, "#{attr.to_s.humanize.titleize} is required for #{subcategory}")
     end
+  end
+
+  def enrich_with_ai
+    AiItemEnrichmentJob.perform_later(id)
   end
 end

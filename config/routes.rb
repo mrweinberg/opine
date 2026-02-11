@@ -3,6 +3,9 @@ Rails.application.routes.draw do
 
   resources :items do
     resources :reviews, only: [ :create, :edit, :update, :destroy ]
+    member do
+      post :regenerate_ai
+    end
   end
 
   get "search/items", to: "searches#items"
