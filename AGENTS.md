@@ -9,7 +9,7 @@ Ensure all code is covered by tests. If you've added new functionality, add test
 If you've completed a task in DESIGN.md, update the file to mark it as done.
 If you've made a structural change to the codebase or schema, update DESIGN.md to reflect the changes.
 If this file, AGENTS.md, needs to be updated, update it to reflect the changes.
-If you have any questions, please ask me.
+ALWAYS prompt clarifying questions if there is a lack of clarity or an important decision to be made.
 
 > [!IMPORTANT]
 > **Always keep DESIGN.md up to date.** After making any design change — adding/removing/renaming constants, changing validation rules, modifying the review flow, updating Stimulus controllers, or altering schema — update the relevant sections of `DESIGN.md` before finishing the task. This includes changes to `CATEGORY_MAP`, `IDENTIFIER_FIELD`, `ATTRIBUTE_DEFINITIONS`, development phases, and Stimulus controller descriptions.
