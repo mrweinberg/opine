@@ -169,10 +169,73 @@ export default class extends Controller {
             wrapper.innerHTML = `
         <label class="block text-sm font-medium text-walnut mb-1 capitalize">${attr.replace(/_/g, ' ')}${starHtml}</label>
         <input type="text" name="item[metadata][${attr}]" 
-               class="w-full rounded-lg border border-sand bg-warm-white shadow-sm focus:outline-none focus:border-clay focus:ring-2 focus:ring-clay/40${isIdentifier ? ' ring-2 ring-clay/30' : ''}">
+               class="w-full rounded-lg border border-sand bg-warm-white shadow-sm focus:outline-none focus:border-clay focus:ring-2 focus:ring-clay/40${isIdentifier ? ' ring-2 ring-clay/30' : ''}"
+               data-review-flow-metadata-field="${attr}"
+               ${isIdentifier ? 'data-action="blur->review-flow#checkIdentifierFields"' : ''}>
       `
             container.appendChild(wrapper)
         })
+    }
+
+    checkIdentifierFields() {
+        const subcategory = this.currentSubcategory
+        const identifierAttrs = [].concat(this.identifierFieldsValue[subcategory] || [])
+        const inputs = Array.from(this.metadataContainerTarget.querySelectorAll('input'))
+
+        const identifierInputs = inputs.filter(i => identifierAttrs.includes(i.dataset.reviewFlowMetadataField))
+        const allFilled = identifierInputs.every(i => i.value.trim().length > 0)
+
+        if (allFilled) {
+            this.suggestMetadata(identifierInputs)
+        }
+    }
+
+    async suggestMetadata(identifierInputs) {
+        const name = this.searchInputTarget.value.trim()
+        const subcategory = this.currentSubcategory
+        const known_fields = {}
+        identifierInputs.forEach(i => {
+            known_fields[i.dataset.reviewFlowMetadataField] = i.value.trim()
+        })
+
+        // Show loading state
+        const otherInputs = Array.from(this.metadataContainerTarget.querySelectorAll('input'))
+            .filter(i => !identifierInputs.includes(i))
+
+        otherInputs.forEach(i => {
+            i.placeholder = "AI is thinking..."
+            i.classList.add("opacity-50")
+            i.disabled = true
+        })
+
+        try {
+            const response = await fetch('/items/suggest_metadata', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({ name, subcategory, known_fields })
+            })
+            const data = await response.json()
+
+            if (data.suggestions) {
+                Object.entries(data.suggestions).forEach(([key, value]) => {
+                    const input = this.metadataContainerTarget.querySelector(`[data-review-flow-metadata-field="${key}"]`)
+                    if (input && !input.value.trim()) {
+                        input.value = value
+                    }
+                })
+            }
+        } catch (error) {
+            console.error("Metadata suggestion failed:", error)
+        } finally {
+            otherInputs.forEach(i => {
+                i.placeholder = ""
+                i.classList.remove("opacity-50")
+                i.disabled = false
+            })
+        }
     }
 
     goToStep(stepOrEvent) {

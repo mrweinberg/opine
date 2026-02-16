@@ -10,12 +10,6 @@ class AiItemEnrichmentJob < ApplicationJob
     result = AiMetadataService.new.enrich(item)
     return unless result
 
-    # Only overwrite metadata if the user hasn't manually edited it
-    unless item.metadata_edited_by_user?
-      merged_metadata = (item.metadata || {}).merge(result[:metadata].stringify_keys)
-      item.metadata = merged_metadata
-    end
-
     item.ai_summary = result[:ai_summary]
     item.ai_estimated_score = result[:ai_estimated_score]
     item.ai_last_updated_at = Time.current

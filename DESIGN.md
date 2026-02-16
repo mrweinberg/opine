@@ -281,27 +281,31 @@ When a user signs in via Google for the first time:
 
 ## 6. Backend Implementation Details
 
-### 5.1 AI Service Layer
+### 6.1 AI Service Layer
 
 **File:** `app/services/ai_metadata_service.rb`
 
-A dedicated service to act as the bridge to Gemini 3 Flash.
+A dedicated service to act as the bridge to Gemini 3 Flash. It implements a **Two-Step Enrichment** strategy to balance speed and user control.
 
-**Method:** `enrich_item(item_name, category)`
+#### Step 1: Metadata Autofill (Inline)
+- **Method:** `suggest_metadata(name, subcategory, known_fields)`
+- **Trigger:** Frontend `blur` event on identifier fields.
+- **Endpoint:** `POST /items/suggest_metadata`
+- **Purpose:** Suggests values for remaining metadata fields before the item is created. Users can review and edit these suggestions in the form.
 
-**Prompt Strategy:**
+#### Step 2: Full enrichment (Post-creation)
+- **Method:** `enrich(item)`
+- **Trigger:** `after_create_commit` background job.
+- **Purpose:** Generates a public sentiment summary and estimated rating score (1-6). It respects existing metadata and does not overwrite user-confirmed values.
 
-```
-System: "You are a data extraction assistant. Return ONLY valid JSON."
+### 6.2 AI Prompt Strategy
 
-User: "Extract metadata for the #{category} named '#{item_name}'.
-       Fields required: #{ATTRIBUTE_DEFINITIONS[category]}.
-       Also provide a 2-sentence 'General Sentiment' summary of public opinion."
-```
+We use different prompts for each step to minimize token usage and latency:
 
-**Response Handling:** Parses JSON and updates the Item record.
+1. **Suggest Prompt:** "Given [Name] and [Known Fields], fill in these missing attributes: [Fields]."
+2. **Full Prompt:** "Given the full item data, summarize public opinion in 4 sentences and estimate a rating on our 1-6 scale."
 
-### 5.2 AI Error Handling
+### 6.3 AI Error Handling
 
 | Failure Mode        | Strategy                                                |
 | ------------------- | ------------------------------------------------------- |
@@ -311,9 +315,9 @@ User: "Extract metadata for the #{category} named '#{item_name}'.
 | Unknown item        | Accept partial data; leave missing fields null          |
 | Service down        | Circuit breaker pattern; skip AI enrichment gracefully  |
 
-**Manual Override:** Users can edit AI-generated metadata. `metadata_edited_by_user: boolean` flag prevents AI from overwriting.
+**Manual Override:** Users can edit AI-generated metadata. `metadata_edited_by_user: boolean` flag used in `AiItemEnrichmentJob` (legacy) or simply confirmed by user in the two-step wizard.
 
-### 5.3 Background Jobs
+### 6.4 Background Jobs
 
 > [!IMPORTANT]
 > We don't want to block the user while Gemini thinks.
@@ -326,6 +330,30 @@ User: "Extract metadata for the #{category} named '#{item_name}'.
 **`ScoreAggregationJob`:**
 - Triggered on review create/update/destroy
 - Recalculates `items.average_score` and `items.reviews_count`
+
+### 6.5 Zeitwerk Naming Conflict Resolution
+
+The `google-genai` gem uses a directory structure (`google/genai`) that conflicts with Zeitwerk's expected naming convention (it expects `Google::Genai` but the gem defines `Google::Genai` in a way that sometimes triggers `NameError` in Rails autoloading).
+
+**Solution:**
+1. Add `require: false` in `Gemfile`.
+2. Manual load via `config/initializers/google_genai.rb`:
+   ```ruby
+   # Load the gem manually before Zeitwerk scans the app code
+   spec = Gem.loaded_specs["google-genai"]
+   if spec
+     load File.join(spec.full_gem_path, "lib/google/genai.rb")
+   end
+   ```
+3. This ensures the constants are available to the service layer without triggering autoloading errors.
+
+### 6.6 Environment Management
+
+We use `.env.local` for sensitive keys like `GEMINI_API_KEY`. To ensure these are available to background workers and the Rails server when using Foreman, `bin/dev` is configured to load them:
+```bash
+# bin/dev
+exec foreman start -f Procfile.dev -e .env.local "$@"
+```
 
 ### 5.4 Review-First Item Creation Flow (4-Step Wizard)
 
@@ -466,11 +494,11 @@ pg_search_scope :search_by_name,
 - [x] Image uploading (ActiveStorage)
 - [x] Score aggregation (denormalized average)
 
-### Phase 3: AI Integration
-- [ ] Integrate `google-generative-ai` gem
-- [ ] Build `AiMetadataService` with error handling
-- [ ] Implement `AiItemEnrichmentJob`
-- [ ] Turbo Stream updates for AI status
+### Phase 3: AI Integration ✅
+- [x] Integrate `google-genai` gem (with Zeitwerk workaround)
+- [x] Build `AiMetadataService` (two-step strategy)
+- [x] Implement `AiItemEnrichmentJob` (sentiment/score)
+- [x] Turbo Stream updates for AI status
 
 ### Phase 4: Review-First Flow (Pivot) ✅
 - [x] Implement `pg_search` for autocomplete

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class ItemsController < ApplicationController
-  before_action :authenticate_user!, except: [ :index, :show ]
+  before_action :authenticate_user!, except: [ :index, :show, :suggest_metadata ]
   before_action :set_item, only: [ :show, :edit, :update, :destroy, :regenerate_ai ]
 
   def index
@@ -11,6 +11,20 @@ class ItemsController < ApplicationController
   end
 
   def show
+  end
+
+  def suggest_metadata
+    name = params[:name]
+    subcategory = params[:subcategory]
+    known_fields = params[:known_fields]&.to_unsafe_h || {}
+
+    suggestions = AiMetadataService.new.suggest_metadata(
+      name: name,
+      subcategory: subcategory,
+      known_fields: known_fields
+    )
+
+    render json: { suggestions: suggestions || {} }
   end
 
   def new
