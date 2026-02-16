@@ -1,0 +1,11 @@
+<div class="mb-6">
+  <div class="flex items-center gap-3 mb-2">
+    <h1 class="font-heading text-3xl font-bold text-espresso"><%= subcategory %></h1>
+    <span class="bg-parchment text-walnut text-sm px-2 py-1 rounded"><%= category %></span>
+  </div>
+  <div class="text-sm text-walnut">
+    <%= Item.by_subcategory(subcategory).count %> items
+    &middot;
+    <%= Review.joins(:item).where(items: { subcategory: subcategory }).count %> reviews
+  </div>
+</div>

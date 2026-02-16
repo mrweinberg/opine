@@ -1,0 +1,36 @@
+<div class="max-w-4xl mx-auto py-8 px-4" data-controller="subcategory-page">
+  <%= render "header", subcategory: @subcategory, category: @category %>
+
+  <%= render "toggle", view_mode: @view_mode, subcategory_slug: params[:subcategory_slug] %>
+
+  <turbo-frame id="subcategory_content">
+    <%= form_with url: subcategory_path(subcategory_slug: params[:subcategory_slug]),
+                  method: :get,
+                  data: { turbo_frame: "subcategory_content",
+                          subcategory_page_target: "form" } do |f| %>
+      <%= hidden_field_tag :view, @view_mode %>
+
+      <% if @view_mode == "reviews" %>
+        <%= render "filters_reviews" %>
+        <%= render "sort_bar", sort_options: review_sort_options, current_sort: params[:sort] %>
+      <% else %>
+        <%= render "filters_items", filterable_attributes: @filterable_attributes, filter_options: @filter_options %>
+        <%= render "sort_bar", sort_options: item_sort_options, current_sort: params[:sort] %>
+      <% end %>
+    <% end %>
+
+    <% if @view_mode == "reviews" %>
+      <% if @reviews.any? %>
+        <%= render "reviews_list", reviews: @reviews %>
+      <% else %>
+        <%= render "empty_state", message: "No reviews found." %>
+      <% end %>
+    <% else %>
+      <% if @items.any? %>
+        <%= render "items_list", items: @items %>
+      <% else %>
+        <%= render "empty_state", message: "No items found." %>
+      <% end %>
+    <% end %>
+  </turbo-frame>
+</div>

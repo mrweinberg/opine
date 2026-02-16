@@ -1,0 +1,10 @@
+<div class="flex border-b border-sand mb-6">
+  <%= link_to "Items",
+      subcategory_path(subcategory_slug: subcategory_slug, view: "items"),
+      class: "px-4 py-2 font-heading font-semibold text-sm border-b-2 transition #{view_mode == 'items' ? 'border-terracotta text-espresso' : 'border-transparent text-walnut hover:text-espresso'}",
+      data: { turbo_action: "advance" } %>
+  <%= link_to "Reviews",
+      subcategory_path(subcategory_slug: subcategory_slug, view: "reviews"),
+      class: "px-4 py-2 font-heading font-semibold text-sm border-b-2 transition #{view_mode == 'reviews' ? 'border-terracotta text-espresso' : 'border-transparent text-walnut hover:text-espresso'}",
+      data: { turbo_action: "advance" } %>
+</div>

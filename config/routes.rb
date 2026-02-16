@@ -1,6 +1,10 @@
 Rails.application.routes.draw do
   devise_for :users, controllers: { omniauth_callbacks: "users/omniauth_callbacks" }
 
+  get ":subcategory_slug", to: "subcategories#show",
+      constraints: { subcategory_slug: Regexp.union(Item::SUBCATEGORY_SLUGS.keys) },
+      as: :subcategory
+
   resources :items do
     member do
       post :regenerate_ai

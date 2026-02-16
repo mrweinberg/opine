@@ -46,5 +46,29 @@ FactoryBot.define do
       subcategory { "Wine" }
       metadata { { "varietal" => "Pinot Noir", "region" => "Sonoma", "vintage" => "2020", "winemaker" => "Kosta Browne", "style" => "Red" } }
     end
+
+    trait :park do
+      category { "Places" }
+      subcategory { "Parks" }
+      metadata { { "city" => "Denver", "type" => "National", "features" => "Trails" } }
+    end
+
+    trait :museum do
+      category { "Places" }
+      subcategory { "Museums" }
+      metadata { { "city" => "Chicago", "type" => "Art", "specialty" => "Modern Art" } }
+    end
+
+    trait :concert do
+      category { "Experiences" }
+      subcategory { "Concerts" }
+      metadata { { "artist" => "Radiohead", "venue" => "Madison Square Garden", "genre" => "Rock" } }
+    end
+
+    trait :festival do
+      category { "Experiences" }
+      subcategory { "Festivals" }
+      metadata { { "city" => "Austin", "type" => "Music", "genre" => "Indie" } }
+    end
   end
 end

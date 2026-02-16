@@ -1,0 +1,34 @@
+<div class="bg-warm-white rounded-lg border border-sand p-5 hover:border-clay/40 transition">
+  <div class="flex justify-between items-start">
+    <div class="flex-1 min-w-0">
+      <%= link_to item_path(item), class: "block group" do %>
+        <span class="font-heading text-lg font-semibold text-espresso group-hover:text-clay transition truncate block">
+          <%= item.name %>
+        </span>
+        <% if item.identifier_value.present? %>
+          <span class="text-sm text-walnut"><%= item.identifier_value %></span>
+        <% end %>
+      <% end %>
+      <% if item.metadata.present? %>
+        <div class="flex flex-wrap gap-1.5 mt-2">
+          <% item.metadata.each do |key, value| %>
+            <% next if value.blank? %>
+            <span class="text-xs bg-parchment text-walnut px-2 py-0.5 rounded">
+              <%= value %>
+            </span>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+    <div class="text-right ml-4 shrink-0">
+      <% if item.average_score.present? %>
+        <div class="font-heading text-2xl font-bold <%= score_text_class(item.average_score.round) %>">
+          <%= number_with_precision(item.average_score, precision: 1) %>
+        </div>
+      <% end %>
+      <div class="text-xs text-walnut/60">
+        <%= pluralize(item.reviews_count, "review") %>
+      </div>
+    </div>
+  </div>
+</div>

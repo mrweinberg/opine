@@ -7,11 +7,20 @@ class Item < ApplicationRecord
     "Things"      => [ "Beer", "Wine", "Liquor" ]
   }.freeze
 
+  SUBCATEGORY_SLUGS = {
+    "restaurants" => "Restaurants", "bars" => "Bars", "parks" => "Parks",
+    "museums" => "Museums", "concerts" => "Concerts", "festivals" => "Festivals",
+    "movies" => "Movies", "games" => "Games", "tv-shows" => "TV Shows",
+    "beer" => "Beer", "wine" => "Wine", "liquor" => "Liquor"
+  }.freeze
+
   IDENTIFIER_FIELD = {
     "Restaurants" => :city,
     "Bars"        => :city,
     "Parks"       => :city,
     "Museums"     => :city,
+    "Concerts"    => :artist,
+    "Festivals"   => :city,
     "Beer"        => :brewery,
     "Wine"        => [ :winemaker, :vintage ],
     "Liquor"      => :producer,
@@ -23,6 +32,10 @@ class Item < ApplicationRecord
   ATTRIBUTE_DEFINITIONS = {
     "Restaurants" => [ :cuisine, :price_range, :city, :neighborhood ],
     "Bars"        => [ :city, :vibe, :specialty, :neighborhood, :price_range ],
+    "Parks"       => [ :city, :type, :features ],
+    "Museums"     => [ :city, :type, :specialty ],
+    "Concerts"    => [ :artist, :venue, :genre ],
+    "Festivals"   => [ :city, :type, :genre ],
     "Liquor"      => [ :abv, :producer, :age_statement, :type ],
     "Wine"        => [ :varietal, :region, :vintage, :winemaker, :style ],
     "Beer"        => [ :style, :brewery, :abv ],
@@ -30,6 +43,32 @@ class Item < ApplicationRecord
     "TV Shows"    => [ :creator, :network, :season, :genre ],
     "Games"       => [ :platform, :developer, :publisher, :genre ]
   }.freeze
+
+  ATTRIBUTE_FILTER_TYPES = {
+    # Text search — rendered as text input, ILIKE partial match
+    city: :text_search, neighborhood: :text_search, cuisine: :text_search,
+    artist: :text_search, venue: :text_search, director: :text_search,
+    studio: :text_search, creator: :text_search, network: :text_search,
+    developer: :text_search, publisher: :text_search, producer: :text_search,
+    winemaker: :text_search, brewery: :text_search, region: :text_search,
+    specialty: :text_search, features: :text_search, age_statement: :text_search,
+    varietal: :text_search,
+    # Dropdown — rendered as select from distinct DB values, exact match
+    type: :dropdown, style: :dropdown, genre: :dropdown, vibe: :dropdown,
+    platform: :dropdown, vintage: :dropdown, release_year: :dropdown, season: :dropdown,
+    # Fixed options — rendered as select from predefined values, exact match
+    price_range: :fixed_options,
+    # Numeric — excluded from filters
+    abv: :numeric
+  }.freeze
+
+  FIXED_FILTER_OPTIONS = {
+    price_range: [ "$", "$$", "$$$", "$$$$" ]
+  }.freeze
+
+  def self.filter_type_for(attribute)
+    ATTRIBUTE_FILTER_TYPES[attribute.to_sym] || :dropdown
+  end
 
   include PgSearch::Model
   pg_search_scope :search_by_name,
@@ -53,6 +92,18 @@ class Item < ApplicationRecord
 
   scope :by_category, ->(category) { where(category: category) }
   scope :by_subcategory, ->(subcategory) { where(subcategory: subcategory) }
+
+  def self.slug_for(subcategory_name)
+    SUBCATEGORY_SLUGS.key(subcategory_name)
+  end
+
+  def self.distinct_metadata_values(subcategory, attribute)
+    attr_s = attribute.to_s
+    by_subcategory(subcategory)
+      .where("metadata ->> ? IS NOT NULL AND metadata ->> ? != ''", attr_s, attr_s)
+      .distinct.pluck(Arel.sql("metadata ->> '#{connection.quote_string(attr_s)}'"))
+      .compact.sort
+  end
 
   def expected_attributes
     ATTRIBUTE_DEFINITIONS[subcategory] || []

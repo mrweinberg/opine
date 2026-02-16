@@ -1,0 +1,33 @@
+<div class="bg-warm-white rounded-lg border border-sand p-5">
+  <div class="flex justify-between items-start">
+    <div class="flex items-center gap-3">
+      <div class="text-xl font-bold font-heading w-12 h-12 rounded-full flex items-center justify-center text-white <%= score_bg_class(review.score) %>">
+        <%= review.score %>
+      </div>
+      <div>
+        <div class="font-semibold text-espresso">
+          <%= review.user.display_name || review.user.username %>
+        </div>
+        <div class="text-xs text-walnut/60">
+          <%= time_ago_in_words(review.created_at) %> ago
+        </div>
+      </div>
+    </div>
+    <div class="text-right">
+      <%= link_to review.item.display_label, item_path(review.item),
+          class: "text-sm font-heading text-clay hover:underline" %>
+    </div>
+  </div>
+
+  <% if review.body.present? %>
+    <p class="text-walnut mt-3"><%= review.body %></p>
+  <% end %>
+
+  <% if review.images.attached? %>
+    <div class="flex gap-2 mt-3 overflow-x-auto">
+      <% review.images.each do |image| %>
+        <%= image_tag image, class: "w-20 h-20 object-cover rounded" %>
+      <% end %>
+    </div>
+  <% end %>
+</div>

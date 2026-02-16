@@ -1,0 +1,57 @@
+<div class="flex flex-wrap gap-3 mb-4">
+  <div class="flex-1 min-w-[200px]">
+    <%= text_field_tag :q, params[:q],
+        placeholder: "Search by name...",
+        class: "w-full bg-warm-white border border-sand rounded-lg px-3 py-2 text-sm text-espresso placeholder-walnut/50 focus:outline-none focus:border-clay",
+        data: { subcategory_page_target: "search", action: "input->subcategory-page#debouncedSubmit" } %>
+  </div>
+
+  <% filterable_attributes.each do |attr| %>
+    <% filter_type = Item.filter_type_for(attr) %>
+    <% if filter_type == :text_search %>
+      <div>
+        <%= text_field_tag attr, params[attr],
+            placeholder: attr.to_s.humanize.titleize,
+            class: "bg-warm-white border border-sand rounded-lg px-3 py-2 text-sm text-espresso placeholder-walnut/50 focus:outline-none focus:border-clay",
+            data: { action: "input->subcategory-page#debouncedSubmit" } %>
+      </div>
+    <% elsif filter_type == :fixed_options %>
+      <% options = Item::FIXED_FILTER_OPTIONS[attr.to_sym] || [] %>
+      <div>
+        <%= select_tag attr,
+            options_for_select([ [ attr.to_s.humanize.titleize, "" ] ] + options.map { |v| [ v, v ] }, params[attr]),
+            class: "bg-warm-white border border-sand rounded-lg px-3 py-2 text-sm text-espresso focus:outline-none focus:border-clay",
+            data: { action: "change->subcategory-page#submit" } %>
+      </div>
+    <% else %>
+      <% options = filter_options[attr] || [] %>
+      <% next if options.empty? %>
+      <div>
+        <%= select_tag attr,
+            options_for_select([ [ attr.to_s.humanize.titleize, "" ] ] + options.map { |v| [ v, v ] }, params[attr]),
+            class: "bg-warm-white border border-sand rounded-lg px-3 py-2 text-sm text-espresso focus:outline-none focus:border-clay",
+            data: { action: "change->subcategory-page#submit" } %>
+      </div>
+    <% end %>
+  <% end %>
+
+  <div class="flex items-center gap-2">
+    <span class="text-xs text-walnut">Score:</span>
+    <%= number_field_tag :min_score, params[:min_score],
+        placeholder: "Min", step: 0.1, min: 1, max: 6,
+        class: "w-16 bg-warm-white border border-sand rounded-lg px-2 py-2 text-sm text-espresso focus:outline-none focus:border-clay",
+        data: { action: "change->subcategory-page#submit" } %>
+    <span class="text-xs text-walnut">to</span>
+    <%= number_field_tag :max_score, params[:max_score],
+        placeholder: "Max", step: 0.1, min: 1, max: 6,
+        class: "w-16 bg-warm-white border border-sand rounded-lg px-2 py-2 text-sm text-espresso focus:outline-none focus:border-clay",
+        data: { action: "change->subcategory-page#submit" } %>
+  </div>
+
+  <% if params.values_at(:q, :min_score, :max_score, *filterable_attributes).any?(&:present?) %>
+    <%= link_to "Clear filters",
+        subcategory_path(subcategory_slug: params[:subcategory_slug]),
+        class: "text-sm text-clay hover:underline self-center",
+        data: { subcategory_page_target: "clearLink" } %>
+  <% end %>
+</div>

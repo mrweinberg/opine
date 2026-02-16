@@ -54,6 +54,14 @@ CATEGORY_MAP = {
   'Things'      => ['Beer', 'Wine', 'Liquor']
 }
 
+# Maps URL slugs to subcategory names for clean URLs (/restaurants, /beer, /tv-shows)
+SUBCATEGORY_SLUGS = {
+  'restaurants' => 'Restaurants', 'bars' => 'Bars', 'parks' => 'Parks',
+  'museums' => 'Museums', 'concerts' => 'Concerts', 'festivals' => 'Festivals',
+  'movies' => 'Movies', 'games' => 'Games', 'tv-shows' => 'TV Shows',
+  'beer' => 'Beer', 'wine' => 'Wine', 'liquor' => 'Liquor'
+}
+
 # Each subcategory's identifier field(s) — used for display_label and uniqueness.
 # Values can be a single symbol or an array for compound identifiers.
 IDENTIFIER_FIELD = {
@@ -61,6 +69,8 @@ IDENTIFIER_FIELD = {
   'Bars'        => :city,
   'Parks'       => :city,
   'Museums'     => :city,
+  'Concerts'    => :artist,
+  'Festivals'   => :city,
   'Beer'        => :brewery,
   'Wine'        => [:winemaker, :vintage],   # compound identifier
   'Liquor'      => :producer,
@@ -70,14 +80,41 @@ IDENTIFIER_FIELD = {
 }
 
 ATTRIBUTE_DEFINITIONS = {
-  'Restaurants' => [:cuisine, :price_range, :neighborhood],
-  'Bars'        => [:vibe, :specialty, :neighborhood, :price_range],
+  'Restaurants' => [:cuisine, :price_range, :city, :neighborhood],
+  'Bars'        => [:city, :vibe, :specialty, :neighborhood, :price_range],
+  'Parks'       => [:city, :type, :features],
+  'Museums'     => [:city, :type, :specialty],
+  'Concerts'    => [:artist, :venue, :genre],
+  'Festivals'   => [:city, :type, :genre],
   'Liquor'      => [:abv, :producer, :age_statement, :type],
   'Wine'        => [:varietal, :region, :vintage, :winemaker, :style],
   'Beer'        => [:style, :brewery, :abv],
   'Movies'      => [:director, :studio, :release_year, :genre],
   'TV Shows'    => [:creator, :network, :season, :genre],
   'Games'       => [:platform, :developer, :publisher, :genre]
+}
+
+# Classifies each metadata attribute for filter rendering and matching behavior.
+# :text_search  → text input, ILIKE partial match (city, cuisine, brewery, etc.)
+# :dropdown     → select from distinct DB values, exact match (genre, style, type, etc.)
+# :fixed_options → select from predefined values, exact match (price_range)
+# :numeric      → excluded from filters (abv)
+ATTRIBUTE_FILTER_TYPES = {
+  city: :text_search, neighborhood: :text_search, cuisine: :text_search,
+  artist: :text_search, venue: :text_search, director: :text_search,
+  studio: :text_search, creator: :text_search, network: :text_search,
+  developer: :text_search, publisher: :text_search, producer: :text_search,
+  winemaker: :text_search, brewery: :text_search, region: :text_search,
+  specialty: :text_search, features: :text_search, age_statement: :text_search,
+  varietal: :text_search,
+  type: :dropdown, style: :dropdown, genre: :dropdown, vibe: :dropdown,
+  platform: :dropdown, vintage: :dropdown, release_year: :dropdown, season: :dropdown,
+  price_range: :fixed_options,
+  abv: :numeric
+}
+
+FIXED_FILTER_OPTIONS = {
+  price_range: ["$", "$$", "$$$", "$$$$"]
 }
 ```
 
@@ -437,10 +474,11 @@ pg_search_scope :search_by_name,
 
 ### 9.1 Stimulus Controllers
 
-| Controller                    | Purpose                                                    |
-| ----------------------------- | ---------------------------------------------------------- |
-| `item-form_controller.js`     | Dynamic category → subcategory filtering, metadata field rendering with identifier highlighting, and pre-filling existing values on edit |
-| `review-flow_controller.js`   | 4-step wizard: Category → Subcategory → Name Search (Autocomplete) → Review Form. Handles compound identifiers. |
+| Controller                        | Purpose                                                    |
+| --------------------------------- | ---------------------------------------------------------- |
+| `item-form_controller.js`         | Dynamic category → subcategory filtering, metadata field rendering with identifier highlighting, and pre-filling existing values on edit |
+| `review-flow_controller.js`       | 4-step wizard: Category → Subcategory → Name Search (Autocomplete) → Review Form. Handles compound identifiers. |
+| `subcategory-page_controller.js`  | Subcategory browse pages: debounced search (300ms), auto-submit on filter/sort change, view toggle (items/reviews). |
 
 ---
 
@@ -515,7 +553,19 @@ pg_search_scope :search_by_name,
 - [x] Inline review editing via Turbo Frames
 - [x] Edit item form pre-fills existing metadata
 
-### Phase 6: Polish & Deploy
+### Phase 6: Subcategory Browse Pages ✅
+- [x] Clean URLs for each subcategory (`/restaurants`, `/beer`, `/tv-shows`, etc.)
+- [x] `SubcategoriesController` with items/reviews toggle, sorting, and filtering
+- [x] Missing `ATTRIBUTE_DEFINITIONS` for Parks, Museums, Concerts, Festivals
+- [x] `IDENTIFIER_FIELD` entries for Concerts (`:artist`) and Festivals (`:city`)
+- [x] `SUBCATEGORY_SLUGS` constant for URL mapping
+- [x] Metadata-based filters with type-aware rendering (text_search, dropdown, fixed_options)
+- [x] Score range (decimal number inputs) and text search filters for items view
+- [x] Score, with_body, and mine filters for reviews view
+- [x] Turbo Frame content updates (no full-page reloads)
+- [x] `subcategory-page` Stimulus controller for debounced search and auto-submit
+
+### Phase 7: Polish & Deploy
 - [ ] System tests for critical flows
 - [ ] Render deployment
 - [ ] Turbo Native mobile wrappers

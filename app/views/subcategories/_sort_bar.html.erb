@@ -1,0 +1,6 @@
+<div class="flex justify-end mb-4">
+  <%= select_tag :sort,
+      options_for_select(sort_options, current_sort),
+      class: "bg-warm-white border border-sand rounded-lg px-3 py-2 text-sm text-espresso focus:outline-none focus:border-clay",
+      data: { action: "change->subcategory-page#submit" } %>
+</div>

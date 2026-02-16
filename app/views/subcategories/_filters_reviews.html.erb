@@ -1,0 +1,31 @@
+<div class="flex flex-wrap gap-3 mb-4 items-center">
+  <div class="flex items-center gap-2">
+    <span class="text-xs text-walnut">Score:</span>
+    <%= select_tag :score,
+        options_for_select([ [ "All", "" ] ] + (1..6).map { |s| [ s.to_s, s ] }, params[:score]),
+        class: "bg-warm-white border border-sand rounded-lg px-2 py-2 text-sm text-espresso focus:outline-none focus:border-clay",
+        data: { action: "change->subcategory-page#submit" } %>
+  </div>
+
+  <label class="flex items-center gap-1.5 text-sm text-walnut cursor-pointer">
+    <%= check_box_tag :with_body, "1", params[:with_body] == "1",
+        class: "rounded border-sand text-clay focus:ring-clay",
+        data: { action: "change->subcategory-page#submit" } %>
+    Has review text
+  </label>
+
+  <% if user_signed_in? %>
+    <label class="flex items-center gap-1.5 text-sm text-walnut cursor-pointer">
+      <%= check_box_tag :mine, "1", params[:mine] == "1",
+          class: "rounded border-sand text-clay focus:ring-clay",
+          data: { action: "change->subcategory-page#submit" } %>
+      My reviews only
+    </label>
+  <% end %>
+
+  <% if params.values_at(:score, :with_body, :mine).any?(&:present?) %>
+    <%= link_to "Clear filters",
+        subcategory_path(subcategory_slug: params[:subcategory_slug], view: "reviews"),
+        class: "text-sm text-clay hover:underline" %>
+  <% end %>
+</div>
