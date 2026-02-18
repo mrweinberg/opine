@@ -47,7 +47,7 @@ export default class extends Controller {
         if (!subcategory) return
 
         this.currentSubcategory = subcategory
-        this.subcategoryLabelTarget.textContent = subcategory.toLowerCase()
+        this.subcategoryLabelTarget.textContent = subcategory.replace(/s$/i, "").toLowerCase()
 
         // Clear search
         this.searchInputTarget.value = ""
