@@ -85,6 +85,6 @@ class ReviewsController < ApplicationController
   end
 
   def review_params
-    params.require(:review).permit(:score, :body, images: [])
+    params.require(:review).permit(:score, :body, tags: [], images: [])
   end
 end

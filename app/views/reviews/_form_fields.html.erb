@@ -24,6 +24,24 @@
         class: "w-full rounded-lg border-sand bg-warm-white shadow-sm focus:border-clay focus:ring-clay/40" %>
   </div>
 
+  <!-- Tags -->
+  <div data-controller="tag-input" data-tag-input-existing-value="<%= (f.object.tags || []).to_json %>">
+    <label class="block text-sm font-medium text-walnut mb-1">Tags (up to 5)</label>
+    <div data-tag-input-target="container" class="flex flex-wrap gap-1.5 mb-2"></div>
+    <div class="flex gap-2">
+      <input type="text" placeholder="Type a tag..."
+             data-tag-input-target="input" data-action="keydown->tag-input#handleKeydown"
+             maxlength="20"
+             class="flex-1 rounded-lg border-sand bg-warm-white shadow-sm focus:border-clay focus:ring-clay/40" />
+      <button type="button" data-action="click->tag-input#addTag" data-tag-input-target="addButton"
+              class="px-3 py-2 rounded-lg bg-parchment border border-sand text-sm text-walnut hover:bg-sand transition whitespace-nowrap disabled:opacity-50">
+        Add
+      </button>
+    </div>
+    <div data-tag-input-target="hiddenContainer"></div>
+    <p class="mt-1 text-xs text-walnut/70">Short labels like "cozy", "date night", "hoppy".</p>
+  </div>
+
   <!-- Images -->
   <div>
     <%= f.label :images, "Photos (up to 5)", class: "block text-sm font-medium text-walnut mb-1" %>

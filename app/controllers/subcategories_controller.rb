@@ -41,6 +41,7 @@ class SubcategoriesController < ApplicationController
 
     if @view_mode == "reviews"
       load_reviews
+      @tag_options = build_review_tag_options
     else
       load_items
     end
@@ -97,9 +98,16 @@ class SubcategoriesController < ApplicationController
     # My reviews filter
     @reviews = @reviews.where(user: current_user) if params[:mine] == "1" && user_signed_in?
 
+    # Tag filter
+    @reviews = @reviews.where("? = ANY(reviews.tags)", params[:tag]) if params[:tag].present?
+
     # Sorting
     sort_sql = REVIEW_SORTS[params[:sort]] || REVIEW_SORTS["recent"]
     @reviews = @reviews.order(Arel.sql(sort_sql))
+  end
+
+  def build_review_tag_options
+    Review.distinct_tags_for_subcategory(@subcategory)
   end
 
   def build_filter_options

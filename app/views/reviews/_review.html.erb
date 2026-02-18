@@ -37,6 +37,16 @@
       <p class="text-walnut mt-3"><%= review.body %></p>
     <% end %>
 
+    <% if review.tags.present? %>
+      <div class="flex flex-wrap gap-1.5 mt-2">
+        <% review.tags.each do |tag| %>
+          <span class="inline-block bg-parchment text-walnut text-xs px-2 py-0.5 rounded-full border border-sand">
+            <%= tag %>
+          </span>
+        <% end %>
+      </div>
+    <% end %>
+
     <% if review.images.attached? %>
       <div class="flex gap-2 mt-3 overflow-x-auto">
         <% review.images.each do |image| %>

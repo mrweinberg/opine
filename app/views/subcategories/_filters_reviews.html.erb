@@ -23,7 +23,17 @@
     </label>
   <% end %>
 
-  <% if params.values_at(:score, :with_body, :mine).any?(&:present?) %>
+  <% if @tag_options.present? %>
+    <div class="flex items-center gap-2">
+      <span class="text-xs text-walnut">Tag:</span>
+      <%= select_tag :tag,
+          options_for_select([["All", ""]] + @tag_options.map { |t| [t, t] }, params[:tag]),
+          class: "bg-warm-white border border-sand rounded-lg px-2 py-2 text-sm text-espresso focus:outline-none focus:border-clay",
+          data: { action: "change->subcategory-page#submit" } %>
+    </div>
+  <% end %>
+
+  <% if params.values_at(:score, :with_body, :mine, :tag).any?(&:present?) %>
     <%= link_to "Clear filters",
         subcategory_path(subcategory_slug: params[:subcategory_slug], view: "reviews"),
         class: "text-sm text-clay hover:underline" %>

@@ -78,6 +78,6 @@ class ItemsController < ApplicationController
   end
 
   def item_params
-    params.require(:item).permit(:name, :category, :subcategory, metadata: {}, reviews_attributes: [ :score, :body, images: [] ])
+    params.require(:item).permit(:name, :category, :subcategory, metadata: {}, reviews_attributes: [ :score, :body, tags: [], images: [] ])
   end
 end

@@ -161,6 +161,23 @@ RSpec.describe "Subcategories", type: :request do
       expect(response.body).to include("Amazing food!")
     end
 
+    it "?view=reviews&tag=cozy filters to reviews with that tag" do
+      review_high.update!(tags: %w[cozy])
+      review_low.update!(tags: %w[spicy], body: "Terrible food")
+
+      get "/restaurants", params: { view: "reviews", tag: "cozy" }
+      expect(response.body).to include("Amazing food!")
+      expect(response.body).not_to include("Terrible food")
+    end
+
+    it "shows tag filter dropdown when tags exist" do
+      review_high.update!(tags: %w[cozy trendy])
+
+      get "/restaurants", params: { view: "reviews" }
+      expect(response.body).to include("cozy")
+      expect(response.body).to include("trendy")
+    end
+
     it "renders empty state when no reviews exist" do
       restaurant2 = create(:item, name: "Empty Place",
                            subcategory: "Bars",

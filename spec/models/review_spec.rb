@@ -55,6 +55,70 @@ RSpec.describe Review, type: :model do
     end
   end
 
+  describe "tag normalization" do
+    it "strips whitespace, downcases, and deduplicates tags" do
+      review = build(:review, tags: [ " Cozy ", "COZY", " hoppy ", "Fresh" ])
+      review.valid?
+      expect(review.tags).to eq(%w[cozy hoppy fresh])
+    end
+
+    it "removes blank tags" do
+      review = build(:review, tags: [ "cozy", "", "  ", "hoppy" ])
+      review.valid?
+      expect(review.tags).to eq(%w[cozy hoppy])
+    end
+
+    it "truncates to 5 tags" do
+      review = build(:review, tags: %w[a b c d e f g])
+      review.valid?
+      expect(review.tags.length).to eq(5)
+    end
+  end
+
+  describe "tag validation" do
+    it "accepts up to 5 valid tags" do
+      review = build(:review, tags: %w[cozy trendy hoppy fresh bright])
+      expect(review).to be_valid
+    end
+
+    it "accepts empty tags" do
+      review = build(:review, tags: [])
+      expect(review).to be_valid
+    end
+
+    it "rejects tags longer than 20 characters" do
+      review = build(:review, tags: [ "a" * 21 ])
+      expect(review).not_to be_valid
+      expect(review.errors[:tags]).to include("each tag must be 20 characters or fewer")
+    end
+  end
+
+  describe ".distinct_tags_for_subcategory" do
+    it "returns unique sorted tags for a subcategory" do
+      restaurant = create(:item, name: "Place A",
+                          metadata: { "cuisine" => "Italian", "price_range" => "$$", "city" => "Chicago", "neighborhood" => "Downtown" })
+      restaurant2 = create(:item, name: "Place B",
+                           metadata: { "cuisine" => "Mexican", "price_range" => "$", "city" => "Austin", "neighborhood" => "East Side" })
+      beer_item = create(:item, :beer, name: "Some IPA")
+
+      create(:review, item: restaurant, tags: %w[cozy date-night])
+      create(:review, item: restaurant2, tags: %w[cozy spicy])
+      create(:review, item: beer_item, tags: %w[hoppy])
+
+      result = Review.distinct_tags_for_subcategory("Restaurants")
+      expect(result).to eq(%w[cozy date-night spicy])
+    end
+
+    it "excludes reviews with empty tags" do
+      restaurant = create(:item, name: "Place C",
+                          metadata: { "cuisine" => "Italian", "price_range" => "$$", "city" => "NYC", "neighborhood" => "SoHo" })
+      create(:review, item: restaurant, tags: [])
+
+      result = Review.distinct_tags_for_subcategory("Restaurants")
+      expect(result).to eq([])
+    end
+  end
+
   describe "score aggregation" do
     let(:item) { create(:item) }
 

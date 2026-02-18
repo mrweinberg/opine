@@ -185,11 +185,14 @@ FIXED_FILTER_OPTIONS = {
 | `item_id`    | FK      | → items                            |
 | `score`      | Integer | Required, 1-6                      |
 | `body`       | Text    | Optional, max 5000 chars           |
+| `tags`       | Text[]  | Optional, max 5 tags, each ≤20 chars. Default `[]`. GIN indexed. |
 | `timestamps` | —       |                                    |
 
 **Constraints:** Unique index on `(user_id, item_id)` — one review per user per item.
 
 **Images:** Up to 5 images via ActiveStorage `has_many_attached :images`
+
+**Tags:** Stored as a PostgreSQL `text[]` array with GIN index. Normalized to lowercase, stripped, deduplicated on save. Filterable on subcategory browse pages via `ANY()` queries.
 
 
 ### 3.4 Entity Relationship Diagram
@@ -464,6 +467,7 @@ pg_search_scope :search_by_name,
 ### Review
 - `score`: Required, integer 1-6
 - `body`: Optional, max 5000 chars, markdown supported
+- `tags`: Optional, max 5 tags, each tag max 20 chars. Normalized (lowercase, stripped, deduplicated) before validation.
 - `images`: Max 5, each ≤5MB
 - **Uniqueness:** One review per user per item
 
@@ -479,6 +483,7 @@ pg_search_scope :search_by_name,
 | `item-form_controller.js`         | Dynamic category → subcategory filtering, metadata field rendering with identifier highlighting, and pre-filling existing values on edit |
 | `review-flow_controller.js`       | 4-step wizard: Category → Subcategory → Name Search (Autocomplete) → Review Form. Handles compound identifiers. |
 | `subcategory-page_controller.js`  | Subcategory browse pages: debounced search (300ms), auto-submit on filter/sort change, view toggle (items/reviews). |
+| `tag-input_controller.js`         | Review tag chip input: Enter/comma to add pills, × to remove, max 5 tags, 20 chars each. Generates hidden inputs for form submission. |
 
 ---
 
