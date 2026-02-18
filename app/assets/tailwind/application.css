@@ -29,6 +29,12 @@
 /* Global focus style override — earthy clay ring instead of browser blue */
 @layer base {
 
+  input:not([type="radio"]):not([type="checkbox"]):not([type="hidden"]):not([type="file"]):not([type="submit"]),
+  textarea,
+  select {
+    padding: 0.5rem 0.75rem; /* py-2 px-3 */
+  }
+
   input:focus,
   textarea:focus,
   select:focus {
