@@ -6,8 +6,8 @@ class ItemsController < ApplicationController
 
   def index
     @items = Item.includes(:created_by_user).order(created_at: :desc)
-    @items = @items.by_category(params[:category]) if params[:category].present?
     @items = @items.by_subcategory(params[:subcategory]) if params[:subcategory].present?
+    @recent_reviews = Review.includes(:user, :item).recent.limit(10)
   end
 
   def show

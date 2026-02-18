@@ -3,7 +3,7 @@
 class Item < ApplicationRecord
   CATEGORY_MAP = {
     "Places"      => [ "Restaurants", "Bars", "Parks", "Museums" ],
-    "Experiences" => [ "Concerts", "Festivals", "Movies", "Games", "TV Shows" ],
+    "Experiences" => [ "Concerts", "Festivals", "Movies", "Games", "TV Shows", "Books" ],
     "Things"      => [ "Beer", "Wine", "Liquor" ]
   }.freeze
 
@@ -11,7 +11,7 @@ class Item < ApplicationRecord
     "restaurants" => "Restaurants", "bars" => "Bars", "parks" => "Parks",
     "museums" => "Museums", "concerts" => "Concerts", "festivals" => "Festivals",
     "movies" => "Movies", "games" => "Games", "tv-shows" => "TV Shows",
-    "beer" => "Beer", "wine" => "Wine", "liquor" => "Liquor"
+    "books" => "Books", "beer" => "Beer", "wine" => "Wine", "liquor" => "Liquor"
   }.freeze
 
   IDENTIFIER_FIELD = {
@@ -26,7 +26,8 @@ class Item < ApplicationRecord
     "Liquor"      => :producer,
     "Movies"      => :director,
     "TV Shows"    => :season,
-    "Games"       => :developer
+    "Games"       => :developer,
+    "Books"       => :author
   }.freeze
 
   ATTRIBUTE_DEFINITIONS = {
@@ -34,14 +35,15 @@ class Item < ApplicationRecord
     "Bars"        => [ :city, :vibe, :specialty, :neighborhood, :price_range ],
     "Parks"       => [ :city, :type, :features ],
     "Museums"     => [ :city, :type, :specialty ],
-    "Concerts"    => [ :artist, :venue, :genre ],
-    "Festivals"   => [ :city, :type, :genre ],
+    "Concerts"    => [ :artist, :venue, :genre, :date, :city ],
+    "Festivals"   => [ :city, :type, :genre, :year, :price_range ],
     "Liquor"      => [ :abv, :producer, :age_statement, :type ],
-    "Wine"        => [ :varietal, :region, :vintage, :winemaker, :style ],
+    "Wine"        => [ :varietal, :region, :vintage, :winemaker, :style, :alcohol, :price_range ],
     "Beer"        => [ :style, :brewery, :abv ],
     "Movies"      => [ :director, :studio, :release_year, :genre ],
     "TV Shows"    => [ :creator, :network, :season, :genre ],
-    "Games"       => [ :platform, :developer, :publisher, :genre ]
+    "Games"       => [ :platform, :developer, :publisher, :genre, :release_year ],
+    "Books"       => [ :author, :genre, :publisher, :year ]
   }.freeze
 
   ATTRIBUTE_FILTER_TYPES = {
@@ -52,14 +54,15 @@ class Item < ApplicationRecord
     developer: :text_search, publisher: :text_search, producer: :text_search,
     winemaker: :text_search, brewery: :text_search, region: :text_search,
     specialty: :text_search, features: :text_search, age_statement: :text_search,
-    varietal: :text_search,
+    varietal: :text_search, date: :text_search, author: :text_search,
     # Dropdown — rendered as select from distinct DB values, exact match
     type: :dropdown, style: :dropdown, genre: :dropdown, vibe: :dropdown,
     platform: :dropdown, vintage: :dropdown, release_year: :dropdown, season: :dropdown,
+    year: :dropdown,
     # Fixed options — rendered as select from predefined values, exact match
     price_range: :fixed_options,
     # Numeric — excluded from filters
-    abv: :numeric
+    abv: :numeric, alcohol: :numeric
   }.freeze
 
   FIXED_FILTER_OPTIONS = {
@@ -90,7 +93,6 @@ class Item < ApplicationRecord
   validate :subcategory_matches_category
   validate :required_attributes_present
 
-  scope :by_category, ->(category) { where(category: category) }
   scope :by_subcategory, ->(subcategory) { where(subcategory: subcategory) }
 
   def self.slug_for(subcategory_name)

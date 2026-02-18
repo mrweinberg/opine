@@ -21,6 +21,11 @@ RSpec.describe "Subcategories", type: :request do
       expect(response).to have_http_status(:ok)
     end
 
+    it "GET /books returns 200" do
+      get "/books"
+      expect(response).to have_http_status(:ok)
+    end
+
     it "GET /notasubcategory returns 404" do
       get "/notasubcategory"
       expect(response).to have_http_status(:not_found)

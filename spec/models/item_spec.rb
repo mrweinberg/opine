@@ -16,6 +16,7 @@ RSpec.describe Item, type: :model do
       expect(Item::SUBCATEGORY_SLUGS["festivals"]).to eq("Festivals")
       expect(Item::SUBCATEGORY_SLUGS["parks"]).to eq("Parks")
       expect(Item::SUBCATEGORY_SLUGS["museums"]).to eq("Museums")
+      expect(Item::SUBCATEGORY_SLUGS["books"]).to eq("Books")
     end
   end
 
@@ -29,11 +30,15 @@ RSpec.describe Item, type: :model do
     end
 
     it "defines Concerts attributes" do
-      expect(Item::ATTRIBUTE_DEFINITIONS["Concerts"]).to eq([ :artist, :venue, :genre ])
+      expect(Item::ATTRIBUTE_DEFINITIONS["Concerts"]).to eq([ :artist, :venue, :genre, :date, :city ])
     end
 
     it "defines Festivals attributes" do
-      expect(Item::ATTRIBUTE_DEFINITIONS["Festivals"]).to eq([ :city, :type, :genre ])
+      expect(Item::ATTRIBUTE_DEFINITIONS["Festivals"]).to eq([ :city, :type, :genre, :year, :price_range ])
+    end
+
+    it "defines Books attributes" do
+      expect(Item::ATTRIBUTE_DEFINITIONS["Books"]).to eq([ :author, :genre, :publisher, :year ])
     end
   end
 
@@ -55,6 +60,10 @@ RSpec.describe Item, type: :model do
 
     it "maps Festivals identifier to :city" do
       expect(Item::IDENTIFIER_FIELD["Festivals"]).to eq(:city)
+    end
+
+    it "maps Books identifier to :author" do
+      expect(Item::IDENTIFIER_FIELD["Books"]).to eq(:author)
     end
   end
 

@@ -38,13 +38,13 @@ FactoryBot.define do
     trait :game do
       category { "Experiences" }
       subcategory { "Games" }
-      metadata { { "platform" => "PC", "developer" => "Valve", "publisher" => "Valve", "genre" => "FPS" } }
+      metadata { { "platform" => "PC", "developer" => "Valve", "publisher" => "Valve", "genre" => "FPS", "release_year" => "2024" } }
     end
 
     trait :wine do
       category { "Things" }
       subcategory { "Wine" }
-      metadata { { "varietal" => "Pinot Noir", "region" => "Sonoma", "vintage" => "2020", "winemaker" => "Kosta Browne", "style" => "Red" } }
+      metadata { { "varietal" => "Pinot Noir", "region" => "Sonoma", "vintage" => "2020", "winemaker" => "Kosta Browne", "style" => "Red", "alcohol" => "13.5%", "price_range" => "$$$" } }
     end
 
     trait :park do
@@ -62,13 +62,19 @@ FactoryBot.define do
     trait :concert do
       category { "Experiences" }
       subcategory { "Concerts" }
-      metadata { { "artist" => "Radiohead", "venue" => "Madison Square Garden", "genre" => "Rock" } }
+      metadata { { "artist" => "Radiohead", "venue" => "Madison Square Garden", "genre" => "Rock", "date" => "2024-07-15", "city" => "New York" } }
     end
 
     trait :festival do
       category { "Experiences" }
       subcategory { "Festivals" }
-      metadata { { "city" => "Austin", "type" => "Music", "genre" => "Indie" } }
+      metadata { { "city" => "Austin", "type" => "Music", "genre" => "Indie", "year" => "2024", "price_range" => "$$" } }
+    end
+
+    trait :book do
+      category { "Experiences" }
+      subcategory { "Books" }
+      metadata { { "author" => "Cormac McCarthy", "genre" => "Fiction", "publisher" => "Vintage", "year" => "2006" } }
     end
   end
 end

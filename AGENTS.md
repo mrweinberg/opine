@@ -73,7 +73,7 @@ bundle exec bundler-audit
 
 Categories are defined in `app/models/item.rb`:
 - **Places**: Restaurants, Bars, Parks, Museums
-- **Experiences**: Concerts, Festivals, Movies, Games, TV Shows
+- **Experiences**: Concerts, Festivals, Movies, Games, TV Shows, Books
 - **Things**: Beer, Wine, Liquor
 
 These categories are not exhaustive and can be expanded in the future.

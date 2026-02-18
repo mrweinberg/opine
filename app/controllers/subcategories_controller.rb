@@ -22,15 +22,16 @@ class SubcategoriesController < ApplicationController
     "Restaurants" => %w[cuisine price_range city neighborhood],
     "Bars"        => %w[city vibe specialty neighborhood price_range],
     "Beer"        => %w[style brewery],
-    "Wine"        => %w[varietal region vintage winemaker style],
+    "Wine"        => %w[varietal region vintage winemaker style price_range],
     "Liquor"      => %w[producer age_statement type],
     "Movies"      => %w[director studio release_year genre],
     "TV Shows"    => %w[creator network season genre],
-    "Games"       => %w[platform developer publisher genre],
+    "Games"       => %w[platform developer publisher genre release_year],
     "Parks"       => %w[city type features],
     "Museums"     => %w[city type specialty],
-    "Concerts"    => %w[artist venue genre],
-    "Festivals"   => %w[city type genre]
+    "Concerts"    => %w[artist venue genre date city],
+    "Festivals"   => %w[city type genre year price_range],
+    "Books"       => %w[author genre publisher year]
   }.freeze
 
   def show

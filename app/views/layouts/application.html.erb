@@ -26,7 +26,27 @@
       <div class="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
         <%= link_to "Opine", root_path, class: "font-heading text-2xl font-bold text-espresso tracking-tight" %>
         <div class="flex items-center gap-4">
+          <div data-controller="dropdown" class="relative">
+            <button data-action="click->dropdown#toggle" data-dropdown-target="button"
+                    class="text-sm text-walnut hover:text-espresso transition flex items-center gap-1" type="button">
+              Browse
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+            <div data-dropdown-target="menu" class="hidden absolute right-0 top-full mt-2 bg-warm-white border border-sand rounded-lg shadow-lg p-4 z-50 min-w-[28rem]">
+              <div class="grid grid-cols-3 gap-6">
+                <% Item::CATEGORY_MAP.each do |category, subcategories| %>
+                  <div>
+                    <h3 class="font-heading text-sm font-semibold text-espresso mb-2"><%= category %></h3>
+                    <% subcategories.each do |sub| %>
+                      <%= link_to sub, subcategory_path_for(sub), class: "block text-sm text-walnut hover:text-clay py-0.5 transition" %>
+                    <% end %>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          </div>
           <% if user_signed_in? %>
+            <%= link_to "Add Review", new_review_wizard_path, class: "text-sm bg-terracotta hover:bg-terracotta-dark text-white px-3 py-1.5 rounded-lg transition font-medium" %>
             <span class="text-walnut text-sm">
               <%= current_user.display_name || current_user.username %>
             </span>

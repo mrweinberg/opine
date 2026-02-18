@@ -50,7 +50,7 @@ Opine is a review aggregation web application allowing users to rate and review 
 ```ruby
 CATEGORY_MAP = {
   'Places'      => ['Restaurants', 'Bars', 'Parks', 'Museums'],
-  'Experiences' => ['Concerts', 'Festivals', 'Movies', 'Games', 'TV Shows'],
+  'Experiences' => ['Concerts', 'Festivals', 'Movies', 'Games', 'TV Shows', 'Books'],
   'Things'      => ['Beer', 'Wine', 'Liquor']
 }
 
@@ -59,7 +59,7 @@ SUBCATEGORY_SLUGS = {
   'restaurants' => 'Restaurants', 'bars' => 'Bars', 'parks' => 'Parks',
   'museums' => 'Museums', 'concerts' => 'Concerts', 'festivals' => 'Festivals',
   'movies' => 'Movies', 'games' => 'Games', 'tv-shows' => 'TV Shows',
-  'beer' => 'Beer', 'wine' => 'Wine', 'liquor' => 'Liquor'
+  'books' => 'Books', 'beer' => 'Beer', 'wine' => 'Wine', 'liquor' => 'Liquor'
 }
 
 # Each subcategory's identifier field(s) — used for display_label and uniqueness.
@@ -76,7 +76,8 @@ IDENTIFIER_FIELD = {
   'Liquor'      => :producer,
   'Movies'      => :director,
   'TV Shows'    => :season,
-  'Games'       => :developer
+  'Games'       => :developer,
+  'Books'       => :author
 }
 
 ATTRIBUTE_DEFINITIONS = {
@@ -84,14 +85,15 @@ ATTRIBUTE_DEFINITIONS = {
   'Bars'        => [:city, :vibe, :specialty, :neighborhood, :price_range],
   'Parks'       => [:city, :type, :features],
   'Museums'     => [:city, :type, :specialty],
-  'Concerts'    => [:artist, :venue, :genre],
-  'Festivals'   => [:city, :type, :genre],
+  'Concerts'    => [:artist, :venue, :genre, :date, :city],
+  'Festivals'   => [:city, :type, :genre, :year, :price_range],
   'Liquor'      => [:abv, :producer, :age_statement, :type],
-  'Wine'        => [:varietal, :region, :vintage, :winemaker, :style],
+  'Wine'        => [:varietal, :region, :vintage, :winemaker, :style, :alcohol, :price_range],
   'Beer'        => [:style, :brewery, :abv],
   'Movies'      => [:director, :studio, :release_year, :genre],
   'TV Shows'    => [:creator, :network, :season, :genre],
-  'Games'       => [:platform, :developer, :publisher, :genre]
+  'Games'       => [:platform, :developer, :publisher, :genre, :release_year],
+  'Books'       => [:author, :genre, :publisher, :year]
 }
 
 # Classifies each metadata attribute for filter rendering and matching behavior.
@@ -106,11 +108,12 @@ ATTRIBUTE_FILTER_TYPES = {
   developer: :text_search, publisher: :text_search, producer: :text_search,
   winemaker: :text_search, brewery: :text_search, region: :text_search,
   specialty: :text_search, features: :text_search, age_statement: :text_search,
-  varietal: :text_search,
+  varietal: :text_search, date: :text_search, author: :text_search,
   type: :dropdown, style: :dropdown, genre: :dropdown, vibe: :dropdown,
   platform: :dropdown, vintage: :dropdown, release_year: :dropdown, season: :dropdown,
+  year: :dropdown,
   price_range: :fixed_options,
-  abv: :numeric
+  abv: :numeric, alcohol: :numeric
 }
 
 FIXED_FILTER_OPTIONS = {
@@ -484,6 +487,7 @@ pg_search_scope :search_by_name,
 | `review-flow_controller.js`       | 4-step wizard: Category → Subcategory → Name Search (Autocomplete) → Review Form. Handles compound identifiers. |
 | `subcategory-page_controller.js`  | Subcategory browse pages: debounced search (300ms), auto-submit on filter/sort change, view toggle (items/reviews). |
 | `tag-input_controller.js`         | Review tag chip input: Enter/comma to add pills, × to remove, max 5 tags, 20 chars each. Generates hidden inputs for form submission. |
+| `dropdown_controller.js`          | Generic dropdown toggle: click to open/close, click outside or Escape to dismiss. Used for the navbar "Browse" menu. |
 
 ---
 
@@ -569,6 +573,12 @@ pg_search_scope :search_by_name,
 - [x] Score, with_body, and mine filters for reviews view
 - [x] Turbo Frame content updates (no full-page reloads)
 - [x] `subcategory-page` Stimulus controller for debounced search and auto-submit
+
+### Phase 6b: Navigation & Homepage ✅
+- [x] Navbar "Browse" dropdown with all subcategories grouped by category
+- [x] `dropdown` Stimulus controller (toggle, click-outside close, Escape close)
+- [x] Homepage redesigned with category cards and recent reviews feed
+- [x] "Add Review" button added to navbar for signed-in users
 
 ### Phase 7: Polish & Deploy
 - [ ] System tests for critical flows
