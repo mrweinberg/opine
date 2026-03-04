@@ -79,7 +79,7 @@ end
 
 gem "pg_search", "~> 2.3"
 
-gem "rubocop", "~> 1.84"
+gem "rubocop", "~> 1.85"
 
 # AI
 gem "google-genai", require: false
